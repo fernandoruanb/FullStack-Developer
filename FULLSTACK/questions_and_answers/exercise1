@@ -1,0 +1,378 @@
+---
+
+# Parte A — Múltipla escolha (20)
+
+1. No seu formulário sem `enctype`, o `Content-Type` do POST costuma chegar como:
+   A) `application/json`
+   B) `application/x-www-form-urlencoded`
+   C) `text/plain`
+   D) `multipart/form-data`
+
+2. No código, quem converte `a=b&c=d` em objeto JS?
+   A) `URLSearchParams`
+   B) `querystring.parse`
+   C) `JSON.parse`
+   D) `Buffer.from`
+
+3. O maior risco de aceitar corpo sem limite é:
+   A) Perder headers
+   B) 304 Not Modified
+   C) DoS por uso de memória
+   D) “Socket hang up” inevitável
+
+4. Sobre `var`, `let`, `const`:
+   A) `var` tem escopo de função e permite redeclaração
+   B) `let` e `const` têm escopo de função
+   C) `const` permite reatribuição
+   D) `let` é hoisted com valor `undefined` acessível antes da linha
+
+5. “Módulo interno/core” é:
+   A) `express`
+   B) `http`
+   C) `dayjs`
+   D) `qs`
+
+6. “Módulo local” é importado como:
+   A) `require('path')`
+   B) `require('./utils')`
+   C) `require('utils')`
+   D) `import utils from 'utils'` (sem config)
+
+7. “Módulo de terceiros” (NPM) geralmente é:
+   A) `http`
+   B) `fs`
+   C) `express`
+   D) `url`
+
+8. Sobre hoisting:
+   A) `var` é hoisted (declaração) e acessável antes com `undefined`
+   B) `let/const` não sofrem hoisting
+   C) `let/const` têm TDZ (acesso antes lança erro)
+   D) `var` tem TDZ
+
+9. Qual a ordem típica no event loop?
+
+```js
+console.log('A');
+setTimeout(()=>console.log('B'), 0);
+Promise.resolve().then(()=>console.log('C'));
+console.log('D');
+```
+
+A) A, D, B, C
+B) A, D, C, B
+C) D, A, C, B
+D) A, C, D, B
+
+10. `req.url` inclui:
+    A) Apenas o path
+    B) Path + query string
+    C) Apenas a query string
+    D) Nada útil
+
+11. Para extrair a query string corretamente em Node puro hoje, a alternativa moderna é:
+    A) `new URL(req.url, 'http://localhost')`
+    B) `JSON.parse(req.url)`
+    C) `fs.readFile(req.url)`
+    D) `querystring.stringify(req.url)`
+
+12. `res.writeHead(200, {"Content-Type":"text/html"})` faz:
+    A) Define status e cabeçalhos de resposta
+    B) Lê cabeçalhos do cliente
+    C) Fecha a conexão
+    D) Faz streaming do corpo
+
+13. Em HTTP sem estado, validação “required” no `<input>` garante:
+    A) Validação também no servidor
+    B) Só no cliente; o servidor deve validar de novo
+    C) Só no servidor
+    D) Nem cliente nem servidor
+
+14. GET é considerado semanticamente:
+    A) Não-idempotente
+    B) Idempotente
+    C) Sempre com corpo
+    D) Reservado a JSON
+
+15. Sobre `querystring`:
+    A) É o padrão mais moderno para formular URL encoding
+    B) É mantido por compatibilidade; `URLSearchParams` é preferível
+    C) Converte JSON automaticamente
+    D) É usado apenas em `multipart/form-data`
+
+16. Em streams de request: o evento `'end'` dispara quando:
+    A) Os headers chegam
+    B) Não há mais chunks de dados
+    C) O servidor fecha o socket
+    D) O cliente recebe a resposta
+
+17. Sobre `let` dentro de `for` com `setTimeout`:
+    A) Captura o valor por iteração corretamente
+    B) Sempre imprime o mesmo número
+    C) Não funciona com `setTimeout`
+    D) É igual a `var`
+
+18. `setImmediate` vs `setTimeout(..., 0)` geralmente agenda o callback para:
+    A) O mesmo momento (sem diferenças)
+    B) Fases diferentes do loop; ordem pode variar
+    C) Microtasks
+    D) Antes de qualquer `console.log`
+
+19. Em Node puro, para responder JSON corretamente você deve usar:
+    A) `res.end(obj)`
+    B) `res.writeHead(200,{"Content-Type":"application/json"}); res.end(JSON.stringify(obj))`
+    C) `res.end(JSON.stringify(obj))` sem cabeçalho
+    D) `res.write(JSON.stringify(obj));` e nunca `end`
+
+20. `server.listen(3000, ...)` faz o processo:
+    A) Bloquear 1 thread por conexão
+    B) Registrar callback e aceitar conexões de forma não-bloqueante
+    C) Abrir porta apenas para HTTPS
+    D) Fechar o event loop
+
+---
+
+# Parte B — Exercícios práticos (10)
+
+> **Regra:** escreva e rode, teste no navegador/curl. As soluções estão no fim, no **Gabarito & Soluções**.
+
+**Ex.01 — POST JSON**
+Crie `POST /json` que aceita `application/json` e retorna o mesmo objeto, com `Content-Type: application/json`. Se o JSON estiver inválido, responda 400 com uma mensagem de erro.
+
+**Ex.02 — Limite de tamanho**
+Implemente um limite de 1 MB no corpo das requisições `POST` (formularios e JSON). Se exceder, retorne `413 Payload Too Large` e encerre a conexão com segurança.
+
+**Ex.03 — Query string moderna**
+Implemente `GET /echo` que lê `?nome=...&email=...` usando `new URL(req.url, 'http://localhost')` e responde um HTML exibindo os valores.
+
+**Ex.04 — Módulo local e segurança (XSS)**
+Crie `utils/sanitize.js` exportando uma função `escapeHtml(s)`. Use-a para escapar `nome` e `email` antes de inserir no HTML de resposta.
+
+**Ex.05 — Mini-roteador**
+Extraia o roteamento para uma função `route(method, path)` que retorna um handler. Separe handlers em pequenos módulos locais (`routes/home.js`, `routes/submit.js`, etc.).
+
+**Ex.06 — Troque `querystring` por `URLSearchParams`**
+Reescreva o parsing de `application/x-www-form-urlencoded` com `URLSearchParams`. Dica: `new URLSearchParams(body).get('nome')`.
+
+**Ex.07 — var/let/const na prática**
+Crie um script que loga, com `setTimeout`, o índice de 0 a 4 ao final do loop. Teste com `var` (mostrará o problema clássico) e depois com `let` (corrige). Explique no comentário do arquivo.
+
+**Ex.08 — Sync vs Async (bloqueio)**
+Adicione `GET /cpu` que faz um loop pesado (ex: contar até 1e9) e observe o servidor travar momentaneamente (bloqueio). Em seguida, adicione `GET /file` que faz `fs.readFile` de forma assíncrona e responde o conteúdo.
+
+**Ex.09 — Ordem do event loop**
+Crie uma rota `GET /loop` que executa:
+
+```js
+console.log('1');
+setTimeout(()=>console.log('2'), 0);
+setImmediate(()=>console.log('3'));
+Promise.resolve().then(()=>console.log('4'));
+console.log('5');
+```
+
+Acesse a rota e anote a ordem observada no terminal. Explique por que `Promise.then` (microtask) roda antes de `setTimeout`.
+
+**Ex.10 — Módulos: core, locais e terceiros**
+Use um **core** (`crypto`) para gerar um hash SHA-256 do `nome`; um **local** (`./utils/sanitize.js`); e (opcional) um **terceiro** (`dayjs`, se quiser instalar) para formatar data na resposta. Mostre esses valores na página de retorno do `/submit`.
+
+---
+
+# Perguntas para ampliar o conhecimento (curtas)
+
+* O que muda ao converter o projeto para **ESM** (`"type":"module"` no `package.json`) — como ficam `import`/`export` vs `require/module.exports`?
+* Quais cabeçalhos de segurança simples você adicionaria em Node puro (ex.: `X-Content-Type-Options: nosniff`) e por quê?
+* Como invalidar submissões repetidas? (ex.: token anti-CSRF simples, verificação de origem, ou rate limit por IP)
+* Em que casos você usaria `ReadableStream`/`Transform` para processar **streams** de upload sem bufferizar tudo em memória?
+
+---
+
+# Gabarito & Soluções
+
+## Respostas — Parte A
+
+1. B
+2. B
+3. C
+4. A
+5. B
+6. B
+7. C
+8. A e C
+9. B (A, D, C, B)
+10. B
+11. A
+12. A
+13. B
+14. B
+15. B
+16. B
+17. A
+18. B
+19. B
+20. B
+
+---
+
+## Soluções resumidas — Parte B
+
+> **Observação:** são “mínimos funcionais” para você comparar com o seu. Sinta-se à vontade para ajustar nomes/organização.
+
+**Ex.01 — POST /json**
+
+```js
+// dentro do createServer
+else if (req.url === '/json' && req.method === 'POST') {
+  if (req.headers['content-type'] !== 'application/json') {
+    res.writeHead(415, {'Content-Type':'text/plain'});
+    return res.end('Unsupported Media Type');
+  }
+  let body='';
+  req.on('data', ch => body += ch);
+  req.on('end', () => {
+    try {
+      const obj = JSON.parse(body);
+      res.writeHead(200, {'Content-Type':'application/json'});
+      res.end(JSON.stringify({ ok:true, recebido: obj }));
+    } catch {
+      res.writeHead(400, {'Content-Type':'application/json'});
+      res.end(JSON.stringify({ ok:false, erro:'JSON inválido' }));
+    }
+  });
+}
+```
+
+**Ex.02 — Limite de 1 MB**
+
+```js
+const MAX = 1 * 1024 * 1024; // 1MB
+let size = 0;
+req.on('data', ch => {
+  size += ch.length;
+  if (size > MAX) {
+    res.writeHead(413, {'Content-Type':'text/plain', 'Connection':'close'});
+    res.end('Payload Too Large');
+    req.destroy(); // interrompe leitura
+  } else {
+    body += ch;
+  }
+});
+```
+
+**Ex.03 — /echo com URL moderna**
+
+```js
+else if (req.url.startsWith('/echo') && req.method === 'GET') {
+  const url = new URL(req.url, 'http://localhost:3000');
+  const nome = url.searchParams.get('nome') || '';
+  const email = url.searchParams.get('email') || '';
+  res.writeHead(200, {'Content-Type':'text/html; charset=utf-8'});
+  res.end(`<h2>Echo</h2><p>Nome: ${nome}</p><p>Email: ${email}</p>`);
+}
+```
+
+**Ex.04 — Módulo local + escape (XSS)**
+
+```js
+// utils/sanitize.js
+exports.escapeHtml = (s='') =>
+  s.replace(/[&<>"']/g, ch =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+
+// no handler /submit
+const { escapeHtml } = require('./utils/sanitize');
+const name = escapeHtml(data.nome);
+const email = escapeHtml(data.email);
+```
+
+**Ex.05 — Mini-roteador**
+
+```js
+// router.js
+const routes = {};
+exports.register = (method, path, handler) => {
+  routes[method+':'+path] = handler;
+};
+exports.resolve = (method, path) => routes[method+':'+path];
+
+// server.js
+const router = require('./router');
+router.register('GET','/', homeHandler);
+router.register('POST','/submit', submitHandler);
+// ...
+const url = new URL(req.url, 'http://localhost:3000');
+const handler = router.resolve(req.method, url.pathname);
+if (handler) handler(req, res, url);
+else { res.writeHead(404); res.end('Not Found'); }
+```
+
+**Ex.06 — Trocar `querystring` por `URLSearchParams`**
+
+```js
+// body: a=b&c=d
+const params = new URLSearchParams(body);
+const nome  = params.get('nome');
+const email = params.get('email');
+```
+
+**Ex.07 — var/let/const + setTimeout**
+
+```js
+// var (imprime 5 cinco vezes)
+for (var i=0; i<5; i++) {
+  setTimeout(()=>console.log('var:', i), 0);
+}
+// let (0..4 corretamente)
+for (let j=0; j<5; j++) {
+  setTimeout(()=>console.log('let:', j), 0);
+}
+// Comentário: let cria novo binding por iteração; var compartilha o mesmo.
+```
+
+**Ex.08 — Sync vs Async**
+
+```js
+// /cpu (bloqueante)
+else if (url.pathname === '/cpu') {
+  let x = 0;
+  for (let i=0; i<1e9; i++) x += i;
+  res.writeHead(200); res.end('OK '+x);
+}
+// /file (assíncrono)
+else if (url.pathname === '/file') {
+  const fs = require('fs');
+  fs.readFile(__filename, 'utf8', (err, data) => {
+    if (err) { res.writeHead(500); return res.end('erro'); }
+    res.writeHead(200, {'Content-Type':'text/plain; charset=utf-8'});
+    res.end(data.slice(0, 200)); // só uma amostra
+  });
+}
+```
+
+**Ex.09 — Ordem do loop**
+
+```js
+else if (url.pathname === '/loop') {
+  console.log('1');
+  setTimeout(()=>console.log('2'), 0);
+  setImmediate(()=>console.log('3'));
+  Promise.resolve().then(()=>console.log('4'));
+  console.log('5');
+  res.end('ok');
+}
+// Anote: saída comum: 1,5,4,(2|3) // microtask (4) antes de timers.
+```
+
+**Ex.10 — Core + Local (+ Terceiro opcional)**
+
+```js
+const crypto = require('crypto');
+const hash = crypto.createHash('sha256').update(name).digest('hex').slice(0,16);
+
+// (opcional) dayjs: instale antes com npm i dayjs
+// const dayjs = require('dayjs');
+// const agora = dayjs().format('YYYY-MM-DD HH:mm:ss');
+```
+
+---
+
