@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+	</head>
+	<body>
+		<h1>List of users</h1>
+		<ul>
+			<% users.forEach(user => { %>
+			<li><strong><%= users.name %></strong> - <%= users.age %> old</li>
+			<% }) %>
+		</ul>
+	</body>
+</html>
