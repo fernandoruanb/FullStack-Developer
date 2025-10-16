@@ -8,6 +8,7 @@ app.set("view engine", "ejs"); // using an ejs for training server-side renderin
 app.set("views", path.join(__dirname, "./views"));
 
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 app.use("/", routes);
 
