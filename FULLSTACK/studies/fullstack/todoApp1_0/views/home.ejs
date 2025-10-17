@@ -5,7 +5,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="author" content="Fernando Ruan">
 		<link rel="stylesheet" href="../public/todoList.css">
-		<script src="../public/js/home.js"></script>
+		<!-- <script src="../public/js/home.js"></script> -->
 		<title>Todo List</title>
 	</head>
 	<body>
@@ -23,7 +23,16 @@
 			</section>
 			<section id="tasks">
 				<h2>All tasks</h2>
-				<ul id="listOfTasks"></ul>
+				<ul id="listOfTasks">
+					<% if (tasks.length === 0) { %>
+						<li>No tasks</li>
+					<% } else { %>
+						<% tasks.forEach(task => { %>
+						<li><%= task %> </li>
+					<% }) %>
+					<% } %>
+				</ul>
+				<a href="addTask">Add a new task</a>
 			</section>
 			<footer id="footer">
 				<h6>KeySoft softwares</h6>

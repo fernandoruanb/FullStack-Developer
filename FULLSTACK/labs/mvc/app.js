@@ -16,6 +16,8 @@ app.set("views", path.join(__dirname, "views"));
 
 app.get("/", usersControllers.getHomePage);
 
+app.get("/addForm", usersControllers.getUserForm);
+
 app.post("/add", usersControllers.addUser);
 
 // Error middleware

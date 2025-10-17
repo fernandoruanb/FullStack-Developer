@@ -2,7 +2,8 @@ const path = require("path");
 const usersModel = require(path.join(__dirname, "../models/usersModel.js"));
 
 exports.getTodoApp = (req, res) => {
-	res.render("home", {} );
+	const tasks = usersModel.getTasks();
+	res.render("home", { tasks } );
 };
 
 exports.getForm = (req, res) => {

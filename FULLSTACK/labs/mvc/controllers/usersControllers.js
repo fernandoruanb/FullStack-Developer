@@ -7,7 +7,7 @@ exports.getHomePage = (req, res) => {
 
 exports.addUser = (req, res) => {
 	const { name, age } = req.body;
-	
+	console.log(req.body)
 	// Protect because it cannot be safe
 
 	if (!name || !age ) {
@@ -16,7 +16,11 @@ exports.addUser = (req, res) => {
 
 	// Call the database to add the data
 
-	userModel.addUser(name, age);
+	userModels.addUser(name, age);
 
 	res.render("success", { name, age });
+}
+
+exports.getUserForm = (req, res) => {
+	res.render("add", {});
 }
