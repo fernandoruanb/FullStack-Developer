@@ -7,6 +7,10 @@ router.get("/", usersControllers.getTodoApp);
 
 router.get("/addTask", usersControllers.getForm);
 
+router.get("/deleteTask", usersControllers.deleteForm);
+
 router.post("/updateTodoApp", usersControllers.addTodo);
+
+router.post("/deleteTask", usersControllers.deleteTodo);
 
 module.exports = router;
