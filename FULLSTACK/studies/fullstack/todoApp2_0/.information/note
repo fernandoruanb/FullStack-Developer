@@ -1,0 +1,3 @@
+CREATE DATABASE todoDb; // to create a database
+ALTER USER 'root'@'localhost' IDENTIFIED BY caching_sha2_password BY 'rootpassword'; // to change the password if it uses that method
+

@@ -2,15 +2,11 @@ const express = require("express");
 const path = require('path');
 const usersControllers = require(path.join(__dirname, "../controllers/usersControllers.js"));
 const router = express.Router();
-const db = require(path.join(__dirname, "../config/db.js"));
+const usersModel = require(path.join(__dirname, "../models/usersModel.js"));
+const db = require(path.join(__dirname, "../config/dbConnection.js"));
 
 // Get all todos
-router.get("/todos", (req, res) => {
-  db.query("SELECT * FROM todo", (err, results) => {
-    if (err) return res.status(500).json({ error: err });
-    res.json(results);
-  });
-});
+router.get("/todos", usersModel.dbTest);
 
 router.get("/", usersControllers.getTodoApp);
 
