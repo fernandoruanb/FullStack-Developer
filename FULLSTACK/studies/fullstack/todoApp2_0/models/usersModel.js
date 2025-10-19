@@ -19,6 +19,17 @@ exports.dbTest = async (req, res) => {
 	}
 };
 
+exports.addUser = async (req, res) => {
+	if (!req.body || !req.body.name || !req.body.task)
+		return res.status(400).send("MISSING_INPUT");
+	const { name, task } = req.body;
+	const db = getDB();
+	if (!db)
+		return res.status(500).send("Bad database connection");
+	await db.query("INSERT INTO todo (user, task) VALUES (?, ?)", [name, task]);
+	res.render("newUser", { name, task });
+}
+
 exports.getTasks = () => task;
 
 exports.addNewTask = (newTask) => {

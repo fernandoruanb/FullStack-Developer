@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale:1.0">
+		<meta name="author" content="Fernando Ruan">
+		<title>User Formularie</title>
+	</head>
+	<body>
+		<main>
+			<header>
+				<nav>
+					<a href="/">HomePage</a>
+					<a href="/addTask">AddTask</a>
+					<a href="/deleteTask">DeleteTask</a>
+				</nav>
+			</header>
+			<section>
+				<h2>User Formularie</h2>
+			</section>
+			<section>
+				<form action="/userAdd" method="POST">
+					<label>Name:</label><br>
+					<input type="text" name="name" placeholder="Insert the name here" required><br><br>
+					<label>Task:</label<br>
+					<input type="text" name="task" placeholder="Insert the task here" required><br><br>
+					<button type="submit">Submit</button><br>
+				</form>
+			</section>
+			<footer>
+				<h6>Keysoft softwares</h6>
+			</footer>
+		</main>
+	</body>
+</html>

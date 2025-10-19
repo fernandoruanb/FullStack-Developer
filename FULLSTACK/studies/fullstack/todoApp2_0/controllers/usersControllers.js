@@ -1,6 +1,20 @@
 const path = require("path");
 const usersModel = require(path.join(__dirname, "../models/usersModel.js"));
 
+exports.userAdd = (req, res) => {
+	if (!req.body || !req.body.name || !req.body.task)
+		return res.status(400).send("Bad request, forgot the name/task");
+	const { name, task } = req.body;
+	
+	usersModel.userAdd(name, task);
+
+	res.render("newUser", { name, task });
+};
+
+exports.userForm = (req, res) => {
+	res.render("userForm", {} );
+}
+
 // Get the homepage of todo app
 
 exports.getTodoApp = (req, res) => {
