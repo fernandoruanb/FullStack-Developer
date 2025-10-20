@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width">
+		<title>DeleteForm</title>
+	</head>
+	<body>
+		<main>
+			<header>
+				<nav>
+					<a href="/">HomePage</a>
+					<a href="/addTask">Add a new task</a>
+					<a href="/deleteTask">Delete a task</a>
+				</nav>
+			</header>
+			<section>
+				<h2>Delete List of Tasks</h2>
+			</section>
+			<section>
+				<ul> <% tasks.forEach(task => { %>
+					<li> <%= task %> </li>
+				<% }) %>
+				</ul>
+				<form action="/deleteTask" method="POST">
+					<label>Task:</label><br>
+					<input type="text" name="deleteTask" placeholder="task to be delete" required><br><br>
+					<button type="Submit">Submit</button>
+				</form>
+			</section>
+			<footer>
+				<h6>Did you really finish that task?</h6>
+				<h6>Keysoft softwares</h6>
+			</footer>
+		</main>
+	</body>
+</html>
