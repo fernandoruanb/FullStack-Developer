@@ -5,38 +5,50 @@ const path = require("path");
 
 const { getDB } = require(path.join(__dirname, "../config/dbConnection.js"));
 
+exports.searchUser = async (user) => {
+	const db = getDB();
+	if (!db)
+		throw new Error("DATABASE_FAILED");
+	if (typeof user !== "string")
+		throw new Error("INVALID_INPUT");
+	const [ rows ] = await db.query(`SELECT * FROM todo WHERE user = ?`, [user]);
+	return (rows);
+};
+
 exports.deleteUser = async (user) => {
 	const db = getDB();
 
-	if (typeof user !== "string")
-		throw new Error("INVALID_INPUT");
 	if (!db)
 		throw new Error("DATABASE_FAILED");
+	if (typeof user !== "string")
+		throw new Error("INVALID_INPUT");
+
 	await db.query(`DELETE FROM todo WHERE user = ?`, [user]);
 };
 
-exports.dbTest = async (req, res) => {
+exports.dbAllUsers = async () => {
 	try {
 		const db = getDB();
 		if (!db)
-			return res.status(500).json({ error: "Database not initialized" });
-	
+			throw new Error("DATABASE_FAILED");
 
 		const [ rows ] = await db.query("SELECT * FROM todo");
-		res.json(rows);
+		return (rows);
+
 	} catch (err) {
 		console.error("Database query error get: ", err);
-		res.status(500).json({ error: err.message });
+		throw new Error(`DATABASE_QUERY_ERROR: ${err.message || err}`);
 	}
 };
 
-exports.addUser = async (req, res) => {
-	if (!req.body || !req.body.name || !req.body.task)
+exports.addUser = async (name, task) => {
+	if (!name || !task)
 		return res.status(400).send("MISSING_INPUT");
-	const { name, task } = req.body;
+
 	const db = getDB();
 	if (!db)
 		return res.status(500).send("Bad database connection");
+
 	await db.query("INSERT INTO todo (user, task) VALUES (?, ?)", [name, task]);
 	res.render("newUser", { name, task });
 }

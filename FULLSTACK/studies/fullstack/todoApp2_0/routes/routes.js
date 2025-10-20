@@ -7,19 +7,23 @@ const db = require(path.join(__dirname, "../config/dbConnection.js"));
 
 //Get method user
 
+router.get("/searchUser", usersControllers.searchUseForm);
+
 router.get("/addUser", usersControllers.userForm);
 
 router.get("/deleteUser", usersControllers.deleteUserForm);
 
 // POST method user
 
-router.post("/userAdd", usersModel.addUser);
+router.post("/userAdd", usersControllers.userAdd);
 
-router.post("/userDelete", usersModel.deleteUser);
+router.post("/userDelete", usersControllers.deleteUser);
+
+router.post("/searchUser", usersControllers.searchUser);
 
 // Get method todo app
 
-router.get("/todos", usersModel.dbTest);
+router.get("/todos", usersControllers.getAllUsers);
 
 router.get("/", usersControllers.getTodoApp);
 
