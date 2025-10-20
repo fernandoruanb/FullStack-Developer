@@ -2,7 +2,18 @@ let task = [];
 const path = require("path");
 
 // Get the database
-const { getDB }= require(path.join(__dirname, "../config/dbConnection.js"));
+
+const { getDB } = require(path.join(__dirname, "../config/dbConnection.js"));
+
+exports.deleteUser = async (user) => {
+	const db = getDB();
+
+	if (typeof user !== "string")
+		throw new Error("INVALID_INPUT");
+	if (!db)
+		throw new Error("DATABASE_FAILED");
+	await db.query(`DELETE FROM todo WHERE user = ?`, [user]);
+};
 
 exports.dbTest = async (req, res) => {
 	try {
@@ -11,8 +22,8 @@ exports.dbTest = async (req, res) => {
 			return res.status(500).json({ error: "Database not initialized" });
 	
 
-	const [ rows ] = await db.query("SELECT * FROM todo");
-	res.json(rows);
+		const [ rows ] = await db.query("SELECT * FROM todo");
+		res.json(rows);
 	} catch (err) {
 		console.error("Database query error get: ", err);
 		res.status(500).json({ error: err.message });

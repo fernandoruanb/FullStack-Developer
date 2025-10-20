@@ -9,9 +9,13 @@ const db = require(path.join(__dirname, "../config/dbConnection.js"));
 
 router.get("/addUser", usersControllers.userForm);
 
+router.get("/deleteUser", usersControllers.deleteUserForm);
+
 // POST method user
 
 router.post("/userAdd", usersModel.addUser);
+
+router.post("/userDelete", usersModel.deleteUser);
 
 // Get method todo app
 
