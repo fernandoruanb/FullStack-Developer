@@ -43,7 +43,7 @@ exports.deleteForm = (req, res) => {
 
 exports.getAllUsers = async (req, res) => {
 	try {
-		const [ rows ] = await usersModel.dbAllUsers();
+		const rows = await usersModel.dbAllUsers();
 		res.status(200).json(rows);
 	} catch (err) {
 		res.status(500).json({ error: err });
@@ -75,7 +75,7 @@ exports.userAdd = async (req, res) => {
 		return res.status(400).send("Bad request, forgot the name/task");
 	const { name, task } = req.body;
 	
-	await usersModel.userAdd(name, task);
+	await usersModel.addUser(name, task);
 
 	res.render("newUser", { name, task });
 };

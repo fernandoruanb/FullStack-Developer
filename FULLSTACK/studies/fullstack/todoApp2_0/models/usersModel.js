@@ -43,14 +43,13 @@ exports.dbAllUsers = async () => {
 
 exports.addUser = async (name, task) => {
 	if (!name || !task)
-		return res.status(400).send("MISSING_INPUT");
+		throw new Error("MISSING_INPUT");
 
 	const db = getDB();
 	if (!db)
-		return res.status(500).send("Bad database connection");
+		throw new Error("DATABASE_NOT_EXISTS");
 
 	await db.query("INSERT INTO todo (user, task) VALUES (?, ?)", [name, task]);
-	res.render("newUser", { name, task });
 }
 
 exports.getTasks = () => task;
