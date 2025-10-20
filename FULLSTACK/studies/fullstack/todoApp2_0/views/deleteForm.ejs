@@ -15,6 +15,13 @@
 				</nav>
 			</header>
 			<section>
+				<h2>Delete List of Tasks</h2>
+			</section>
+			<section>
+				<ul> <% tasks.forEach(task => { %>
+					<li> <%= task %> </li>
+				<% }) %>
+				</ul>
 				<form action="/deleteTask" method="POST">
 					<label>Task:</label><br>
 					<input type="text" name="deleteTask" placeholder="task to be delete" required><br><br>

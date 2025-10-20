@@ -34,7 +34,9 @@ exports.deleteUserForm = (req, res) => {
 // Delete formularie
 
 exports.deleteForm = (req, res) => {
-	res.render("deleteForm", {});
+	// If you forget the brackets, you store the function
+	const tasks = usersModel.getTasks();
+	res.render("deleteForm", { tasks } );
 };
 
 // Get all users in Database
@@ -108,12 +110,6 @@ exports.deleteTodo = (req, res) => {
 	const tasks = usersModel.getTasks();
 
 	res.render("deleteAction", { deleteTask, tasks });
-};
-
-// Send the delete formularie
-
-exports.deleteForm = (req, res) => {
-	res.render("deleteForm", {} );
 };
 
 // Add the new task to our database
