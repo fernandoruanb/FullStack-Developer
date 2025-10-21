@@ -9,6 +9,8 @@ const db = require(path.join(__dirname, "../config/dbConnection.js"));
 
 router.get("/login", usersControllers.loginPage);
 
+//router.post("/dashboard, usersControllers.getDashBoard);
+
 router.get("/register", usersControllers.signUpPage);
 
 // Post method login

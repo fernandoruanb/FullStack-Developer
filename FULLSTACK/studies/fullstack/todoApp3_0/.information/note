@@ -18,3 +18,31 @@ openssl rand -hex 64
 
 npm i -D tailwindcss@latest tailwindcss/cli
 -D -> developer dependency
+
+:id erase implement
+
+crud example
+tables, a presentable context
+
+express-validator, to help check the length of password, name etc
+All validations and print all the messages
+In the view page
+
+validators for register and login 
+
+folder validators
+
+It works as middlewares
+
+todoValidator too using express-validator
+study { body } = require(express-validator)
+
+study multer library
+upload files -> to learn how to send files
+
+enctype"multipart/form-data" -> type="file" -> in the form to upload
+
+app.post("/upload")
+
+you can open your dashboard and update, delete and see easily everything
+

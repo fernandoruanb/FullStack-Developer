@@ -4,6 +4,14 @@ const jwt = require("jsonwebtoken"); // It is necessary to configurate JWT and y
 
 // Login
 
+/*exports.getDashBoard = (req, res) => {
+	if (!req.body || !req.body.user)
+		throw new Error("NOT_AUTH"); 
+	const { user } = req.body;
+
+	res.render("dashboard", { user });
+}*/
+
 exports.login = async (req, res) => {
 	if (!req.body || !req.body.email || !req.body.password)
 		return res.status(400).json({ error: "MISSING_INPUT" });
