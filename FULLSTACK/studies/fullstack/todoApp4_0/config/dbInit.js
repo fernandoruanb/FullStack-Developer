@@ -19,8 +19,8 @@ async function initDatabase() {
 		await connection.query(`
 			CREATE TABLE IF NOT EXISTS todo (
 		  	id INT AUTO_INCREMENT PRIMARY KEY,
-			user VARCHAR(100) NOT NULL,
-		  	task VARCHAR(255) NOT NULL,
+			user VARCHAR(100) UNIQUE NOT NULL,
+		  	task VARCHAR(255) UNIQUE NOT NULL,
 		  	status ENUM('pending', 'done') DEFAULT 'pending',
 		  	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP

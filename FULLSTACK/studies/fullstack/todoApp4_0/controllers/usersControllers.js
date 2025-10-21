@@ -75,6 +75,28 @@ exports.login = async (req, res) => {
 	}
 };
 
+exports.addTodoTask = async (req, res) => {
+	if (!req.body || !req.body.task)
+		return res.status(400).json({ error: "MISSING_INPUT " });
+	try {
+		const { task } = req.body;
+
+		if (typeof task !== "string")
+			return res.status(400).json({ error: "INVALID_INPUT" });
+		
+		const token = req.cookies.token;
+
+		const decoded = jwt.verify(token, process.env.JWT_SECRET);
+		const user = decoded.user;
+
+		await usersModel.addNewTask(user, task);
+
+		return res.status(201).json({ success: true, message: task });
+	} catch (err) {
+		return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
+	}
+};
+
 exports.register = async (req, res) => {
 	if (!req.body || !req.body.username || !req.body.password || !req.body.email || !req.body.confirmPassword)
 		return res.status(400).json({ error: "MISSING_INPUT" });
@@ -89,7 +111,11 @@ exports.register = async (req, res) => {
 
 		if (password !== confirmPassword)
 			throw new Error("PASSWORD_MISMATCH");
+
+		// Registering the user
 		await usersModel.registerUser(username, password, email);
+		// Registering the user's todo
+		await usersModel.addUser(username, "It's your first task :)");
 
 		// To indicate the success of login as well
 
@@ -122,7 +148,8 @@ exports.register = async (req, res) => {
 		else if (err.code === "ER_DUP_ENTRY")
 			message = "The user already exists";
 		else
-			message = "A problem happened, try again";
+			message = err;
+			//message = "A problem happened, try again";
 		return res.render("register", { message });
 	}
 };
