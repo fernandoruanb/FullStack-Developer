@@ -5,6 +5,40 @@ const bcrypt = require("bcrypt");
 // Get the database
 
 const { getDB } = require(path.join(__dirname, "../config/dbConnection.js"));
+const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+exports.getLoginUsername = async (email) => {
+	if (!email)
+		throw new Error("MISSING_INPUT");
+	if (!emailRegex.test(email))
+		throw new Error("INVALID_EMAIL");
+	const db = getDB();
+	if (!db)
+		throw new Error("DATABASE_NOT_FOUND");
+	const [ rows ] = await db.query(`SELECT username FROM users WHERE email = ?`, [email]);
+	if (rows.length === 0)
+		throw new Error("NOT_FOUND_USER");
+	return (rows[0].username);
+};
+
+exports.tryLogin = async (email, password) => {
+	if (!email || !password)
+		throw new Error("MISSING_INPUT");
+	if (typeof email !== "string" || typeof password !== "string")
+		throw new Error("INVALID_INPUT");
+	if (!emailRegex.test(email))
+		throw new Error("INVALID_EMAIL");
+	const db = getDB();
+	if (!db)
+		throw new Error("DATABASE_NOT_FOUND");
+	const [ rows ] = await db.query(`SELECT password FROM users WHERE email = ?`, [ email ]);
+	if (rows.length === 0)
+		throw new Error("NOT_FOUND_USER");
+	const match = await bcrypt.compare(password, rows[0].password);
+	if (!match)
+		throw new Error("INVALID_CREDENTIALS");
+	return (true);
+};
 
 exports.registerUser = async (username, password, email) => {
 	if (!username || !password || !email)
@@ -14,30 +48,12 @@ exports.registerUser = async (username, password, email) => {
 	const db = getDB();
 	if (!db)
 		throw new Error("DATABASE_NOT_FOUND");
-	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 	if (!emailRegex.test(email))
 		throw new Error("INVALID_EMAIL");
-	const password_hash = bcrypt.hash(password, 20);
+	const password_hash = await bcrypt.hash(password, 10);
 	if (!password_hash)
 		throw new Error("ERROR_HASH_PASSWORD");
-	await db.query("INSERT INTO users VALUES (?, ?, ?)", [username, password_hash, email]);
-	return (true);
-};
-
-exports.loginTime = async (user, password) => {
-	if (!user || !password)
-		throw new Error("MISSING_INPUT");
-	if (typeof user !== "string" || typeof password !== "string")
-		throw new Error("INVALID_INPUT");
-	const db = getDB();
-	if (!db)
-		throw new Error("DATABASE_NOT_FOUND");
-	const [ rows ] = await db.query("SELECT password FROM users WHERE user = ?", [ user ]);
-	if (rows.length === 0)
-		throw new Error ("NOT_FOUND_USER");
-	const match = await bcrypt.compare(rows[0], password_hash);
-	if (!match)
-		throw new Error ("INVALID_CREDENTIALS");
+	await db.query("INSERT INTO users (username, password, email) VALUES (?, ?, ?)", [username, password_hash, email]);
 	return (true);
 };
 

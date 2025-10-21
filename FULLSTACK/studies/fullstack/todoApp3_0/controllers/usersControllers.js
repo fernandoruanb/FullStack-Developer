@@ -3,53 +3,57 @@ const usersModel = require(path.join(__dirname, "../models/usersModel.js"));
 
 // Login
 
+exports.login = async (req, res) => {
+	if (!req.body || !req.body.email || !req.body.password)
+		return res.status(400).json({ error: "MISSING_INPUT" });
+	
+	try {
+		const { email, password } = req.body;
+
+		await usersModel.tryLogin(email, password);
+
+		const user = await usersModel.getLoginUsername(email);
+
+		return res.render("dashboard", { user });
+	} catch (err) {
+		const message = "Invalid credentials";
+		return res.render("loginPage", { message } );
+	}
+};
+
 exports.register = async (req, res) => {
 	if (!req.body || !req.body.username || !req.body.password || !req.body.email)
 		return res.status(400).json({ error: "MISSING_INPUT" });
 
 	try {
+		let user = null;
 		const { username, password, email } = req.body;
 
-		await usersModel.registerUser(username, password, email);
+		if (typeof username !== "string" || typeof password !== "string" || typeof email !== "string")
+			return res.status(400).json({ error: "INVALID_INPUT" });
 
+		await usersModel.registerUser(username, password, email);
 		// To indicate the success of login as well
-		const message = `Welcome to our TodoApp ${username} :)`;
-		res.render("dashboard", { message } );
+		user = username;
+		return res.render("dashboard", { user } );
 	} catch (err) {
 		const message = "A problem happened, try again";
-		res.redirect("register", { message });
+		return res.render("register", { message });
 	}
-}
+};
+
 exports.loginPage = (req, res) => {
 	const message = null;
 	res.render("loginPage", { message } );
 };
 
 exports.signUpPage = (req, res) => {
-	res.render("register", {} );
+	const message = null;
+	res.render("register", { message } );
 };
 
 exports.logout = (req, res) => {
 	res.redirect("/login");
-}
-
-exports.login = async (req, res) => {
-	if (!req.body || !req.body.email || !req.body.password)
-		return res.status(400).json({ error: "MISSING_INPUT" });
-
-	try {
-		if (typeof user !== "string" || typeof password !== "string")
-			res.status(400).json({ error: "INVALID_INPUT" });
-
-		const { user, password } = req.body;
-
-		await usersModel.loginTime(user, password);
-
-		res.render("dashboard", { user });
-	} catch (err) {
-		const message = "Invalid credentials";
-		res.render("loginPage", { message });
-	}
 }
 
 // Return the user searched

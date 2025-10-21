@@ -16,6 +16,9 @@
 				<h2>Sign Up</h2>
 			</section>
 			<section>
+				<% if ( message ) { %>
+					<p style="color: red"> <%= message %> </p>
+				<% } %>
 				<form action="/register" method="POST">
 					<label>Username:</label><br>
 					<input type="text" name="username" placeholder="put your username here" required><br><br>

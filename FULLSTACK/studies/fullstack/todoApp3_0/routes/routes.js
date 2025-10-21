@@ -17,6 +17,8 @@ router.get("/logout", usersControllers.logout);
 
 router.post("/register", usersControllers.register);
 
+router.post("/login", usersControllers.login);
+
 //Get method user
 
 router.get("/searchUser", usersControllers.searchUseForm);
