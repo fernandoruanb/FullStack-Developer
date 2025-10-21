@@ -4,6 +4,26 @@ const jwt = require("jsonwebtoken"); // It is necessary to configurate JWT and y
 
 // Login
 
+exports.deleteUserById = async (req, res) => {
+	try {
+		const { id } = req.params;
+		if (!id)
+			return res.status(400).json({ error: "MISSING_PARAMS" });
+
+		const parseId = parseInt(id, 10);
+		if (isNaN(parseId))
+			throw new Error("FAILED_PARSING_ID");
+		const rows = await usersModel.deleteUserById(parseId);
+
+		// You can see everything here
+		return res.status(200).json(rows);
+		//res.redirect("/getDashBoard");
+
+	} catch (err) {
+		return res.status(500).json({error: err.message });
+	};
+};
+
 exports.getDashBoard = (req, res) => {
 	const token = req.cookies.token;
 
@@ -48,7 +68,7 @@ exports.login = async (req, res) => {
 			maxAge: 60 * 60 * 1000 // 1h in miliseconds
 		});
 
-		return res.render("dashboard", { user });
+		return res.redirect("getDashBoard");
 	} catch (err) {
 		const message = "Invalid credentials";
 		return res.render("loginPage", { message } );
@@ -60,17 +80,19 @@ exports.register = async (req, res) => {
 		return res.status(400).json({ error: "MISSING_INPUT" });
 
 	try {
-		let user = null;
 		const { username, password, email, confirmPassword } = req.body;
 
 		if (typeof username !== "string" || typeof password !== "string" || typeof email !== "string" || typeof confirmPassword !== "string")
 			return res.status(400).json({ error: "INVALID_INPUT" });
 	
+		let user = null;
+
 		if (password !== confirmPassword)
 			throw new Error("PASSWORD_MISMATCH");
 		await usersModel.registerUser(username, password, email);
 
 		// To indicate the success of login as well
+
 		user = username;
 
 		// useful data to make a token
@@ -91,12 +113,14 @@ exports.register = async (req, res) => {
 			maxAge: 60 * 60 * 1000
 		});
 
-		return res.render("dashboard", { user } );
+		return res.redirect("getDashBoard");
 	} catch (err) {
 		let message = null;
 
 		if (err.message === "PASSWORD_MISMATCH")
 			message = "Password Mismatch";
+		else if (err.code === "ER_DUP_ENTRY")
+			message = "The user already exists";
 		else
 			message = "A problem happened, try again";
 		return res.render("register", { message });

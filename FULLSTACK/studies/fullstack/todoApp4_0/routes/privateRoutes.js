@@ -31,6 +31,8 @@ router.get("/deleteUser", usersControllers.deleteUserForm);
 
 // POST method user
 
+router.get("/userDelete/:id", usersControllers.deleteUserById);
+
 router.post("/userAdd", usersControllers.userAdd);
 
 router.post("/userDelete", usersControllers.deleteUser);
