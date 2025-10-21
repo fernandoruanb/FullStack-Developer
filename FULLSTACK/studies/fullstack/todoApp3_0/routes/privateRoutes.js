@@ -5,7 +5,17 @@ const router = express.Router();
 const usersModel = require(path.join(__dirname, "../models/usersModel.js"));
 const db = require(path.join(__dirname, "../config/dbConnection.js"));
 
-// Logout
+//Get method login
+
+router.get("/login", usersControllers.loginPage);
+
+router.get("/register", usersControllers.signUpPage);
+
+// Post method login
+
+router.post("/register", usersControllers.register);
+
+router.post("/login", usersControllers.login);
 
 router.get("/logout", usersControllers.logout);
 

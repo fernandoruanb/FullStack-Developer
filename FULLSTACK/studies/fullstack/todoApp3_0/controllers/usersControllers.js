@@ -26,6 +26,8 @@ exports.login = async (req, res) => {
 
 		// Lax === relaxed in English, strict for more security
 		// Extra security, localhost needs secure false or the cookie will not send to browser
+		// httpOnly protects your cookies to avoid accessing from browser javascript, avoiding XSS attacks
+
 		res.cookie("token", token, {
 			httpOnly: true,
 			secure: safeCookie,
@@ -41,16 +43,18 @@ exports.login = async (req, res) => {
 };
 
 exports.register = async (req, res) => {
-	if (!req.body || !req.body.username || !req.body.password || !req.body.email)
+	if (!req.body || !req.body.username || !req.body.password || !req.body.email || !req.body.confirmPassword)
 		return res.status(400).json({ error: "MISSING_INPUT" });
 
 	try {
 		let user = null;
-		const { username, password, email } = req.body;
+		const { username, password, email, confirmPassword } = req.body;
 
-		if (typeof username !== "string" || typeof password !== "string" || typeof email !== "string")
+		if (typeof username !== "string" || typeof password !== "string" || typeof email !== "string" || typeof confirmPassword !== "string")
 			return res.status(400).json({ error: "INVALID_INPUT" });
-
+	
+		if (password !== confirmPassword)
+			throw new Error("PASSWORD_MISMATCH");
 		await usersModel.registerUser(username, password, email);
 
 		// To indicate the success of login as well
@@ -64,6 +68,7 @@ exports.register = async (req, res) => {
 		});
 
 		// Secure the cookies to avoid attacks
+		// maxAge updates the time of the cookie but, during logout you must not use maxAge and yes path
 
 		const safeToken = process.env.NODE_ENV === "production";
 		res.cookie("token", token, {
@@ -75,7 +80,12 @@ exports.register = async (req, res) => {
 
 		return res.render("dashboard", { user } );
 	} catch (err) {
-		const message = "A problem happened, try again";
+		let message = null;
+
+		if (err.message === "PASSWORD_MISMATCH")
+			message = "Password Mismatch";
+		else
+			message = "A problem happened, try again";
 		return res.render("register", { message });
 	}
 };
@@ -92,7 +102,24 @@ exports.signUpPage = (req, res) => {
 
 exports.logout = (req, res) => {
 	// the logout is only the clean of cookies and go back to login webpage
-	res.clearCookie(token);
+	const isProduction = process.env.NODE_ENV === "production";
+
+	// If you get an error here, the token will not erase
+
+	// the "path" here indicates the start point of token erase and / indicates all points
+
+	/*
+		There is a big problem using sameSite: strict because if you are logging and be redirect to another
+		external website like OAuth from Google, the session cookie will not send to backend because the
+		strict protection against CSRF. Lax is secure, but not so strong like strict. For natural use of webpage, many websites prefer Lax.
+	*/
+
+	res.clearCookie("token", {
+		httpOnly: true,
+		sameSite: "lax",
+		secure: isProduction,
+		path: "/"
+	});
 	res.redirect("/login");
 }
 
