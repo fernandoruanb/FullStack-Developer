@@ -2,7 +2,17 @@ CREATE DATABASE todoDb; // to create a database
 ALTER USER 'root'@'localhost' IDENTIFIED BY caching_sha2_password BY 'rootpassword'; // to change the password if it uses that method
 
 wget https://dev.mysql.com/get/mysql-apt-config_0.8.32-1_all.deb
+
 To install mysql-server, you can choose the version and update your repositories, so, only do apt install -f for dependencies of dpkg -i
 and apt install mysql-server -y
 follow each instruction and finish
 It's done
+
+npm i jsonwebtoken -> JWT
+cookie-parser
+dotenv -> environment variables
+
+To configure JWT_SECRET
+openssl rand -base64 255
+openssl rand -hex 64
+

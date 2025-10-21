@@ -1,5 +1,6 @@
 const path = require("path");
 const usersModel = require(path.join(__dirname, "../models/usersModel.js"));
+const jwt = require("jsonwebtoken"); // It is necessary to configurate JWT and you need cookie-parser and dotenv
 
 // Login
 
@@ -13,6 +14,24 @@ exports.login = async (req, res) => {
 		await usersModel.tryLogin(email, password);
 
 		const user = await usersModel.getLoginUsername(email);
+
+		// Useful data === payload
+		const payload = { email, user };
+
+		const token = jwt.sign(payload, process.env.JWT_SECRET, {
+			expiresIn: process.env.JWT_EXPIRES_IN || "1h"
+		});
+
+		const safeCookie = process.env.NODE_ENV === "production";
+
+		// Lax === relaxed in English, strict for more security
+		// Extra security, localhost needs secure false or the cookie will not send to browser
+		res.cookie("token", token, {
+			httpOnly: true,
+			secure: safeCookie,
+			sameSite: "lax", 
+			maxAge: 60 * 60 * 1000 // 1h in miliseconds
+		});
 
 		return res.render("dashboard", { user });
 	} catch (err) {
@@ -33,8 +52,27 @@ exports.register = async (req, res) => {
 			return res.status(400).json({ error: "INVALID_INPUT" });
 
 		await usersModel.registerUser(username, password, email);
+
 		// To indicate the success of login as well
 		user = username;
+
+		// useful data to make a token
+		const payload = { email, user };
+
+		const token = jwt.sign(payload, process.env.JWT_SECRET, {
+			expiresIn: process.env.JWT_EXPIRES_IN || "1h"
+		});
+
+		// Secure the cookies to avoid attacks
+
+		const safeToken = process.env.NODE_ENV === "production";
+		res.cookie("token", token, {
+			httpOnly: true,
+			secure: safeToken,
+			sameSite: "lax",
+			maxAge: 60 * 60 * 1000
+		});
+
 		return res.render("dashboard", { user } );
 	} catch (err) {
 		const message = "A problem happened, try again";
@@ -53,6 +91,8 @@ exports.signUpPage = (req, res) => {
 };
 
 exports.logout = (req, res) => {
+	// the logout is only the clean of cookies and go back to login webpage
+	res.clearCookie(token);
 	res.redirect("/login");
 }
 
