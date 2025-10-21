@@ -16,3 +16,5 @@ To configure JWT_SECRET
 openssl rand -base64 255
 openssl rand -hex 64
 
+npm i -D tailwindcss@latest tailwindcss/cli
+-D -> developer dependency
