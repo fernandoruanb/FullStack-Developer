@@ -5,7 +5,7 @@ const router = express.Router();
 const usersModel = require(path.join(__dirname, "../models/usersModel.js"));
 const db = require(path.join(__dirname, "../config/dbConnection.js"));
 
-//Get method login
+//GET method login
 
 router.get("/login", usersControllers.loginPage);
 
@@ -13,7 +13,7 @@ router.get("/getDashboard", usersControllers.getDashBoard);
 
 router.get("/register", usersControllers.signUpPage);
 
-// Post method login
+// POST method login
 
 router.post("/register", usersControllers.register);
 
@@ -21,7 +21,7 @@ router.post("/login", usersControllers.login);
 
 router.get("/logout", usersControllers.logout);
 
-//Get method user
+//GET method user
 
 router.get("/searchUser", usersControllers.searchUseForm);
 
@@ -39,7 +39,9 @@ router.post("/userDelete", usersControllers.deleteUser);
 
 router.post("/searchUser", usersControllers.searchUser);
 
-// Get method todo app
+// GET method todo app
+
+router.get("/buttonUpdateTask/:task", usersControllers.buttonUpdateTask);
 
 router.get("/addTodoTaskPage", usersControllers.addTodoTaskPage);
 
@@ -52,6 +54,10 @@ router.get("/addTask", usersControllers.getForm);
 router.get("/deleteTask", usersControllers.deleteForm);
 
 // POST method todo app
+
+router.post("/updateUserTask", usersControllers.updateUserTask);
+
+router.post("/buttonDeleteTask", usersControllers.buttonDeleteTask);
 
 router.post("/addTodoTask", usersControllers.addTodoTask);
 

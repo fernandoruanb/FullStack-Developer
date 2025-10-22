@@ -1,8 +1,76 @@
 const path = require("path");
-const usersModel = require(path.join(__dirname, "../models/usersModel.js"));
+const usersModel = require(path.join(__dirname, "../models/usersModel.js" ));
 const jwt = require("jsonwebtoken"); // It is necessary to configurate JWT and you need cookie-parser and dotenv
 
 // Login
+
+exports.updateUserTask = async (req, res) => {
+	console.log("O corpo: ", req.body);
+	if (!req.body || !req.body.oldTask || !req.body.newTask)
+		return res.status(400).json({ error: "MISSING_INPUT" });
+	try {
+		const { newTask, oldTask } = req.body;
+		const token = req.cookies.token;
+		if (!token)
+			throw new Error("NO_AUTH");
+
+		const decoded = jwt.verify(token, process.env.JWT_SECRET);
+		const user = decoded.user;
+
+		if (typeof oldTask !== "string" || typeof newTask !== "string")
+			throw new Error("INVALID_INPUT");
+
+		await usersModel.updateUserTodoTask(user, oldTask, newTask);
+
+		return res.redirect("/getDashBoard");
+	} catch (err) {
+		return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
+	}
+};
+
+exports.buttonUpdateTask = async (req, res) => {
+	if (!req.params.task)
+		return res.status(400).json({ error: "1MISSING_INPUT" });
+	try {
+		const { task } = req.params;
+
+		const token = req.cookies.token;
+		if (!token)
+			throw new Error("NO_AUTH");
+
+		const decoded = jwt.verify(token, process.env.JWT_SECRET);
+		const user = decoded.user;
+
+		if (typeof user !== "string" || typeof task !== "string")
+			throw new Error("INVALID_INPUT");
+
+		console.log("User: ", user, "Task: ", task);
+		return res.render("getUserTask", { user, task } );
+	} catch (err) {
+		return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
+	}
+};
+
+exports.buttonDeleteTask = async (req, res) => {
+	if (!req.body || !req.body.task)
+		res.status(400).json({ error: "MISSING_INPUT" });
+	try {
+		const { task } = req.body;
+
+		const token = req.cookies.token;
+		if (!token)
+			throw new Error("NO_AUTH");
+		const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+		const user = decoded.user;
+
+		await usersModel.deleteUserTask(user, task);
+
+		res.redirect("/getDashBoard");
+	} catch (err) {
+		return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
+	}
+};
 
 exports.deleteUserById = async (req, res) => {
 	try {
@@ -20,7 +88,7 @@ exports.deleteUserById = async (req, res) => {
 		//res.redirect("/getDashBoard");
 
 	} catch (err) {
-		return res.status(500).json({error: err.message });
+		return res.status(500).json({ error: err.message });
 	};
 };
 

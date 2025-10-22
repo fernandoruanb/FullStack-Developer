@@ -7,6 +7,30 @@ const bcrypt = require("bcrypt");
 const { getDB } = require(path.join(__dirname, "../config/dbConnection.js"));
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
+exports.updateUserTodoTask = async (user, oldTask, newTask) => {
+	if (!user || !oldTask || !newTask)
+		throw new Error("MISSING_INPUT");
+	if (typeof user !== "string" || typeof oldTask !== "string" || typeof newTask !== "string")
+		throw new Error("INVALID_INPUT");
+	const db = getDB();
+	if (!db)
+		throw new Error("DATABASE_NOT_FOUND");
+	await db.query("UPDATE todo SET task = ? WHERE user = ? AND task = ?", [ newTask, user, oldTask ]);
+	return (true);
+};
+
+exports.deleteUserTask = async (user, task) => {
+	if (!user || !task)
+		throw new Error("MISSING_INPUT");
+	if (typeof user !== "string" || typeof task !== "string")
+		throw new Error("INVALID_INPUT");
+	const db = getDB();
+	if (!db)
+		throw new Error("DATABASE_NOT_FOUND");
+	await db.query("DELETE FROM todo WHERE user = ? AND task = ?", [ user, task ]);
+	return (true);
+};
+
 exports.getUserTasks = async (user) => {
 	if (!user)
 		throw new Error("MISSING_INPUT");

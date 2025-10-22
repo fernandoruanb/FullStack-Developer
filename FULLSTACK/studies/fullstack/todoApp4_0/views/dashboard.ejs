@@ -38,8 +38,13 @@
 									<td> <%= index + 1 %> </td>
 									<td> <%= task %> </td>
 									<td>
-										<button>Update</button>
-										<button>Delete</button>
+										<form action="/buttonUpdateTask/<%= task %>" method="GET">
+											<button>Update</button>
+										</form>
+										<form action="/buttonDeleteTask" method="POST">
+											<input type="hidden" name="task" value="<%= task %>">
+										<button type="submit">Delete</button>
+										</form>
 									</td>
 								</tr>
 							<% }) %>
