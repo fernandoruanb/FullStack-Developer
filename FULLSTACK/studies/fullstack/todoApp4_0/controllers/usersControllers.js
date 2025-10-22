@@ -5,7 +5,6 @@ const jwt = require("jsonwebtoken"); // It is necessary to configurate JWT and y
 // Login
 
 exports.updateUserTask = async (req, res) => {
-	console.log("O corpo: ", req.body);
 	if (!req.body || !req.body.oldTask || !req.body.newTask)
 		return res.status(400).json({ error: "MISSING_INPUT" });
 	try {
