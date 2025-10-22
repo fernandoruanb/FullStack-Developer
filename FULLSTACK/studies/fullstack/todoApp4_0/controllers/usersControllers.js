@@ -24,16 +24,18 @@ exports.deleteUserById = async (req, res) => {
 	};
 };
 
-exports.getDashBoard = (req, res) => {
+exports.getDashBoard = async (req, res) => {
 	const token = req.cookies.token;
 
 	try {
 		const decoded = jwt.verify(token, process.env.JWT_SECRET);
 		const user = decoded.user;
 
-		return res.render("dashboard", { user });
+		const tasks = await usersModel.getUserTasks(user);
+
+		return res.render("dashboard", { user, tasks });
 	} catch (err) {
-		return res.status(401).json({ error: "NOT_AUTHORIZED" });
+		return res.status(401).json({ error: err.message });
 	}
 }
 
@@ -71,8 +73,11 @@ exports.login = async (req, res) => {
 		return res.redirect("getDashBoard");
 	} catch (err) {
 		const message = "Invalid credentials";
-		return res.render("loginPage", { message } );
 	}
+};
+
+exports.addTodoTaskPage = (req, res) => {
+	res.render("addNewTask", {} );
 };
 
 exports.addTodoTask = async (req, res) => {
@@ -89,9 +94,9 @@ exports.addTodoTask = async (req, res) => {
 		const decoded = jwt.verify(token, process.env.JWT_SECRET);
 		const user = decoded.user;
 
-		await usersModel.addNewTask(user, task);
+		await usersModel.addTodoNewTask(user, task);
 
-		return res.status(201).json({ success: true, message: task });
+		res.redirect("/getDashBoard");
 	} catch (err) {
 		return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
 	}

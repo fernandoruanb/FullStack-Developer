@@ -41,6 +41,8 @@ router.post("/searchUser", usersControllers.searchUser);
 
 // Get method todo app
 
+router.get("/addTodoTaskPage", usersControllers.addTodoTaskPage);
+
 router.get("/todos", usersControllers.getAllUsers);
 
 router.get("/", usersControllers.getTodoApp);
@@ -50,6 +52,8 @@ router.get("/addTask", usersControllers.getForm);
 router.get("/deleteTask", usersControllers.deleteForm);
 
 // POST method todo app
+
+router.post("/addTodoTask", usersControllers.addTodoTask);
 
 router.post("/updateTodoApp", usersControllers.addTodo);
 

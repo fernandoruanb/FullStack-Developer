@@ -9,17 +9,45 @@
 		<main>
 			<header>
 				<nav>
-					<a href="/addTask">Add a new Task</a>
-					<a href="/deleteTask">Delete a task</a>
+					<a href="/addTask">Add a new temporary task</a>
+					<a href="/deleteTask">Delete a temporary task</a>
+					<a href="/addTodoTaskPage">Add a permanent task</a>
 					<a href="/searchUser">Search User</a>
 					<a href="/logout">Logout</a>
 				</nav>
 			</header>
 			<section>
 				<h1>Dashboard of TodoApp v1.0 :)</h1>
+				<h2>Welcome <strong> <%= user %> </strong> to your exclusive profile</h2>
 			</section>
 			<section>
-				<h2>Welcome <strong><%= user %></strong> to your exclusive profile</h2>
+				<% /* thead (table header) tbody (table body) tr (table row) td (table data_) */ %>
+				<% /* th (header cell) */ %>
+				<% if (tasks && tasks.length > 0) { %>
+						<table border=1>
+							<thead>
+								<tr>
+									<th>Id</th>
+									<th>Tasks</th>
+									<th>Options</th>
+								</tr>
+							</thead>
+							<tbody>
+							<% tasks.forEach((task, index) => { %>
+								<tr>
+									<td> <%= index + 1 %> </td>
+									<td> <%= task %> </td>
+									<td>
+										<button>Update</button>
+										<button>Delete</button>
+									</td>
+								</tr>
+							<% }) %>
+							</tbody>
+						</table>
+				<% } else { %>
+					<p>No tasks found</p>
+				<% } %>
 			</section>
 			<footer>
 				<h6>Keysoft softwares</h6>
