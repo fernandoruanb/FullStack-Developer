@@ -1,0 +1,57 @@
+CREATE DATABASE todoDb; // to create a database
+ALTER USER 'root'@'localhost' IDENTIFIED BY caching_sha2_password BY 'rootpassword'; // to change the password if it uses that method
+
+wget https://dev.mysql.com/get/mysql-apt-config_0.8.32-1_all.deb
+
+To install mysql-server, you can choose the version and update your repositories, so, only do apt install -f for dependencies of dpkg -i
+and apt install mysql-server -y
+follow each instruction and finish
+It's done
+
+npm i jsonwebtoken -> JWT
+cookie-parser
+dotenv -> environment variables
+
+To configure JWT_SECRET
+openssl rand -base64 255
+openssl rand -hex 64
+
+npm i -D tailwindcss@latest tailwindcss/cli
+-D -> developer dependency
+
+:id erase implement
+
+crud example
+tables, a presentable context
+
+express-validator, to help check the length of password, name etc
+All validations and print all the messages
+In the view page
+
+validators for register and login 
+
+folder validators
+
+It works as middlewares
+
+todoValidator too using express-validator
+study { body } = require(express-validator)
+
+study multer library
+upload files -> to learn how to send files
+
+enctype"multipart/form-data" -> type="file" -> in the form to upload
+
+app.post("/upload")
+
+you can open your dashboard and update, delete and see easily everything
+
+ssh-add -l -> list ssh keys configured on your machine
+ssh-add private_key add a private key
+
+solve user_id ( )
+solve complete button ( )
+solve upload images with multer ( )
+solve organization with express-validator ( )
+Introduce ORM ( )
+
