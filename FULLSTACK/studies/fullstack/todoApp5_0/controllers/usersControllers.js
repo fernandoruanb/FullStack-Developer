@@ -4,6 +4,27 @@ const jwt = require("jsonwebtoken"); // It is necessary to configurate JWT and y
 
 // Login
 
+exports.completeUserTask = async (req, res) => {
+	if (!req.body || !req.body.task)
+		return res.status(400).error({ error: "MISSING_INPUT" });
+	try {
+		const token = req.cookies.token;
+
+		if (!token)
+			throw new Error("NO_AUTH");
+
+		const { task } = req.body;
+		const decoded = jwt.verify(token, process.env.JWT_SECRET);
+		const user_id = decoded.user_id;
+
+		await usersModel.completeTheTask(user_id, task);
+
+		return res.redirect("/getDashBoard");
+	} catch (err) {
+		return res.status(500).json({ error: err.message });
+	}
+};
+
 exports.updateUserTask = async (req, res) => {
 	if (!req.body || !req.body.oldTask || !req.body.newTask)
 		return res.status(400).json({ error: "MISSING_INPUT" });
@@ -94,16 +115,18 @@ exports.deleteUserById = async (req, res) => {
 };
 
 exports.getDashBoard = async (req, res) => {
-	const token = req.cookies.token;
 
 	try {
+		const token = req.cookies.token;
+		if (!token)
+			throw new Error("NO_AUTH");
 		const decoded = jwt.verify(token, process.env.JWT_SECRET);
 		const user = decoded.user;
 		const user_id = decoded.user_id;
 
-		const tasks = await usersModel.getUserTasks(user_id);
+		const { tasks, status } = await usersModel.getUserTasks(user_id);
 
-		return res.render("dashboard", { user, tasks });
+		return res.render("dashboard", { user, tasks, status });
 	} catch (err) {
 		return res.status(401).json({ error: err.message });
 	}

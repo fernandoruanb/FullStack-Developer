@@ -23,12 +23,13 @@
 			<section>
 				<% /* thead (table header) tbody (table body) tr (table row) td (table data_) */ %>
 				<% /* th (header cell) */ %>
-				<% if (tasks && tasks.length > 0) { %>
+				<% if (tasks && tasks.length > 0 && status && status.length > 0) { %>
 						<table border=1>
 							<thead>
 								<tr>
 									<th>Id</th>
 									<th>Tasks</th>
+									<th>Status</th>
 									<th>Options</th>
 								</tr>
 							</thead>
@@ -37,15 +38,19 @@
 								<tr>
 									<td> <%= index + 1 %> </td>
 									<td> <%= task %> </td>
+									<td> <%= status[index] %> </td>
 									<td>
-										<form action="/buttonUpdateTask/<%= encodeURIComponent(task) %>" method="GET">
+										<form action="/buttonUpdateTask/<%= encodeURIComponent(task) %>" method="GET" style="display:inline;">
 											<button>Update</button>
 										</form>
-										<form action="/buttonDeleteTask" method="POST">
+										<form action="/buttonDeleteTask" method="POST" style="display:inline;">
 											<input type="hidden" name="task" value="<%= task %>">
 										<button type="submit">Delete</button>
 										</form>
-										<button>Complete</button>
+										<form action="/buttonCompleteTask" method="POST" style="display:inline;">
+											<input type="hidden" name="task" value="<%= task %>">
+											<button type="submit">Complete</button>
+										</form>
 									</td>
 								</tr>
 							<% }) %>

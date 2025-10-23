@@ -55,6 +55,8 @@ router.get("/deleteTask", usersControllers.deleteForm);
 
 // POST method todo app
 
+router.post("/buttonCompleteTask", usersControllers.completeUserTask);
+
 router.post("/updateUserTask", usersControllers.updateUserTask);
 
 router.post("/buttonDeleteTask", usersControllers.buttonDeleteTask);

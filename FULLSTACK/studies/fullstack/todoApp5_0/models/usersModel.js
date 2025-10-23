@@ -7,6 +7,17 @@ const bcrypt = require("bcrypt");
 const { getDB } = require(path.join(__dirname, "../config/dbConnection.js"));
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
+exports.completeTheTask = async (user_id, task) => {
+	if (!user_id || !task)
+		throw new Error("MISSING_INPUT");
+	const db = getDB();
+	if (!db)
+		throw new Error("DATABASE_NOT_FOUND");
+	const taskStatus = "done";
+	await db.query("UPDATE todo SET status = ? WHERE id = ? AND task = ?", [ taskStatus, user_id, task ]);
+	return (true);
+}
+
 exports.getUsersId = async (user) => {
 	if (!user)
 		throw new Error("MISSING_INPUT");
@@ -55,9 +66,13 @@ exports.getUserTasks = async (user_id) => {
 	if (!db)
 		throw new Error("DATABASE_NOT_FOUND");
 
-	const [ rows ] = await db.query("SELECT task FROM todo WHERE id = ?", [ user_id ]);
+	const [ rows ] = await db.query("SELECT task, status FROM todo WHERE id = ?", [ user_id ]);
+
 	// map to get a list of tasks to avoid the list of objects
-	return (rows.map(t => t.task));
+	const tasks = rows.map(row => row.task);
+	const status = rows.map(row => row.status);
+
+	return { tasks, status };
 };
 
 exports.addTodoNewTask = async (user_id, task) => {
