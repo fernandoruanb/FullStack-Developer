@@ -7,27 +7,16 @@ const bcrypt = require("bcrypt");
 const { getDB } = require(path.join(__dirname, "../config/dbConnection.js"));
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-exports.getTodoId = async (user) => {
-	if (!user)
-		throw new Error("MISSING_INPUT");
-	const db = getDB();
-	if (!db)
-		throw new Error("INVALID_INPUT");
-	const [ rows ] = await db.query("SELECT id FROM todo WHERE task = ?", [ user ]);
-	if (rows.length === 0)
-		throw new Error("NOT_FOUND_ID");
-	return (rows[0].id);
-};
-
 exports.getUsersId = async (user) => {
 	if (!user)
 		throw new Error("MISSING_INPUT");
 	const db = getDB();
 	if (!db)
 		throw new Error("INVALID_INPUT");
-	const [ rows ] = await db.query("SELECT id FROM users WHERE username = ?", [ user ]);
+	const [ rows ] = await db.query("SELECT id FROM users WHERE username = ? limit 1", [ user ]);
 	if (rows.length === 0)
 		throw new Error("NOT_FOUND_USER");
+	console.log("User List: ", rows[0].id);
 	return (rows[0].id);
 }
 
@@ -43,38 +32,43 @@ exports.updateUserTodoTask = async (user_id, oldTask, newTask) => {
 	return (true);
 };
 
-exports.deleteUserTask = async (user, task) => {
-	if (!user || !task)
+exports.deleteUserTask = async (user_id, task) => {
+	if (!user_id || !task)
 		throw new Error("MISSING_INPUT");
-	if (typeof user !== "string" || typeof task !== "string")
+	if (typeof user_id !== "number" || typeof task !== "string")
 		throw new Error("INVALID_INPUT");
 	const db = getDB();
 	if (!db)
 		throw new Error("DATABASE_NOT_FOUND");
-	await db.query("DELETE FROM todo WHERE user = ? AND task = ?", [ user, task ]);
+	await db.query("DELETE FROM todo WHERE id = ? AND task = ?", [ user_id, task ]);
 	return (true);
 };
 
-exports.getUserTasks = async (user) => {
-	if (!user)
+exports.getUserTasks = async (user_id) => {
+	if (!user_id)
 		throw new Error("MISSING_INPUT");
+
+	if (typeof user_id !== "number")
+		throw new Error("INVALID_INPUT");
+
 	const db = getDB();
 	if (!db)
 		throw new Error("DATABASE_NOT_FOUND");
-	const [ rows ] = await db.query("SELECT task FROM todo WHERE user = ?", [ user ]);
+
+	const [ rows ] = await db.query("SELECT task FROM todo WHERE id = ?", [ user_id ]);
 	// map to get a list of tasks to avoid the list of objects
 	return (rows.map(t => t.task));
 };
 
-exports.addTodoNewTask = async (users_id, user, task) => {
-	if (!user || !task)
+exports.addTodoNewTask = async (user_id, task) => {
+	if (!user_id || !task)
 		throw new Error("MISSING_INPUT");
-	if (typeof user !== "string" || typeof task !== "string")
+	if (typeof user_id !== "number" || typeof task !== "string")
 		throw new Error("INVALID_INPUT");
 	const db = getDB();
 	if (!db)
 		throw new Error("NOT_FOUND_DATABASE");
-	await db.query("INSERT INTO todo (id, user, task) VALUES (?,?)", [ users_id, user, task ]);
+	await db.query("INSERT INTO todo (id, task) VALUES (?, ?)", [ user_id, task ]);
 	return (true);
 };
 
@@ -178,15 +172,18 @@ exports.dbAllUsers = async () => {
 	}
 };
 
-exports.addUser = async (name, task) => {
-	if (!name || !task)
+exports.addUser = async (user_id, task) => {
+	if (!user_id || !task)
 		throw new Error("MISSING_INPUT");
+
+	if (typeof user_id !== "number" || typeof task !== "string")
+		throw new Error("INVALID_INPUT");
 
 	const db = getDB();
 	if (!db)
 		throw new Error("DATABASE_NOT_EXISTS");
 
-	await db.query("INSERT INTO todo (user, task) VALUES (?, ?)", [name, task]);
+	await db.query("INSERT INTO todo (id, task) VALUES (?, ?)", [ user_id, task ]);
 }
 
 exports.getTasks = () => task;

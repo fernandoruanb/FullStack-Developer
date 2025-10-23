@@ -14,17 +14,15 @@ exports.updateUserTask = async (req, res) => {
 			throw new Error("NO_AUTH");
 
 		const decoded = jwt.verify(token, process.env.JWT_SECRET);
-		const id = decoded.todo_id;
+		const id = decoded.user_id;
 		if (!id)
 			throw new Error("NO_AUTH");
-		const todo_id = parseInt(id[0][0].id, 10);
-
-		console.log("ID NA UPDATE:", user_id, typeof user_id);
-
-		if (typeof todo_id !== "number" || typeof oldTask !== "string" || typeof newTask !== "string")
+		const user_id = parseInt(id, 10);
+	
+		if (typeof user_id !== "number" || typeof oldTask !== "string" || typeof newTask !== "string")
 			throw new Error("INVALID_INPUT");
 
-		await usersModel.updateUserTodoTask(todo_id, oldTask, newTask);
+		await usersModel.updateUserTodoTask(user_id, oldTask, newTask);
 
 		return res.redirect("/getDashBoard");
 	} catch (err) {
@@ -34,7 +32,7 @@ exports.updateUserTask = async (req, res) => {
 
 exports.buttonUpdateTask = async (req, res) => {
 	if (!req.params.task)
-		return res.status(400).json({ error: "1MISSING_INPUT" });
+		return res.status(400).json({ error: "MISSING_INPUT" });
 	try {
 		const { task } = req.params;
 
@@ -48,7 +46,6 @@ exports.buttonUpdateTask = async (req, res) => {
 		if (typeof user !== "string" || typeof task !== "string")
 			throw new Error("INVALID_INPUT");
 
-		console.log("User: ", user, "Task: ", task);
 		return res.render("getUserTask", { user, task } );
 	} catch (err) {
 		return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
@@ -66,9 +63,9 @@ exports.buttonDeleteTask = async (req, res) => {
 			throw new Error("NO_AUTH");
 		const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-		const user = decoded.user;
+		const user_id = decoded.user_id;
 
-		await usersModel.deleteUserTask(user, task);
+		await usersModel.deleteUserTask(user_id, task);
 
 		res.redirect("/getDashBoard");
 	} catch (err) {
@@ -102,8 +99,9 @@ exports.getDashBoard = async (req, res) => {
 	try {
 		const decoded = jwt.verify(token, process.env.JWT_SECRET);
 		const user = decoded.user;
+		const user_id = decoded.user_id;
 
-		const tasks = await usersModel.getUserTasks(user);
+		const tasks = await usersModel.getUserTasks(user_id);
 
 		return res.render("dashboard", { user, tasks });
 	} catch (err) {
@@ -123,13 +121,12 @@ exports.login = async (req, res) => {
 		const user = await usersModel.getLoginUsername(email);
 
 		const user_id = await usersModel.getUsersId(user);
-		const todo_id = await usersModel.getTodoId(user);
 
-		if (!user_id || !todo_id)
+		if (!user_id)
 			throw new Error("INVALID_IDS");
 
 		// Useful data === payload
-		const payload = { email, user, user_id, todo_id };
+		const payload = { email, user, user_id };
 
 		const token = jwt.sign(payload, process.env.JWT_SECRET, {
 			expiresIn: process.env.JWT_EXPIRES_IN || "1h"
@@ -162,7 +159,7 @@ exports.addTodoTaskPage = (req, res) => {
 
 exports.addTodoTask = async (req, res) => {
 	if (!req.body || !req.body.task)
-		return res.status(400).json({ error: "MISSING_INPUT " });
+		return res.status(400).json({ error: "MISSING_INPUT" });
 	try {
 		const { task } = req.body;
 
@@ -172,15 +169,13 @@ exports.addTodoTask = async (req, res) => {
 		const token = req.cookies.token;
 
 		const decoded = jwt.verify(token, process.env.JWT_SECRET);
-		const user = decoded.user;
 		const user_id = decoded.user_id;
-		const uid = parseInt(user_id[0][0].id, 10);
 
-		await usersModel.addTodoNewTask(uid, user, task);
+		await usersModel.addTodoNewTask(user_id, task);
 
 		res.redirect("/getDashBoard");
 	} catch (err) {
-		return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
+		return res.status(500).json({ error: err.message });
 	}
 };
 
@@ -202,10 +197,15 @@ exports.register = async (req, res) => {
 		// Registering the user
 		await usersModel.registerUser(username, password, email);
 		// Registering the user's todo
-		await usersModel.addUser(username, "It's your first task :)");
-		const success = "Registered successfully!";
 
-		return res.redirect("loginPage", { success });
+		const user_id = await usersModel.getUsersId(username);
+
+		await usersModel.addUser(user_id, "It's your first task :)");
+
+		const success = "Registered successfully!";
+		const message = null;
+
+		return res.render("loginPage", { success, message });
 	} catch (err) {
 		let message = null;
 
