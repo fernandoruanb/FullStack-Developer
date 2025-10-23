@@ -7,6 +7,18 @@ const bcrypt = require("bcrypt");
 const { getDB } = require(path.join(__dirname, "../config/dbConnection.js"));
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
+exports.uploadAvatar = async (user_id, avatarPath) => {
+	if (!user_id || !avatarPath)
+		throw new Error("MISSING_INPUT");
+	if (typeof user_id !== "number" || typeof avatarPath !== "string")
+		throw new Error("INVALID_INPUT");
+	const db = getDB();
+	if (!db)
+		throw new Error("DATABASE_NOT_FOUND");
+	await db.query("UPDATE users SET avatar = ? WHERE id = ?", [ avatarPath, user_id ]);
+	return (true);
+};
+
 exports.completeTheTask = async (user_id, task) => {
 	if (!user_id || !task)
 		throw new Error("MISSING_INPUT");
@@ -27,7 +39,6 @@ exports.getUsersId = async (user) => {
 	const [ rows ] = await db.query("SELECT id FROM users WHERE username = ? limit 1", [ user ]);
 	if (rows.length === 0)
 		throw new Error("NOT_FOUND_USER");
-	console.log("User List: ", rows[0].id);
 	return (rows[0].id);
 }
 
@@ -53,6 +64,20 @@ exports.deleteUserTask = async (user_id, task) => {
 		throw new Error("DATABASE_NOT_FOUND");
 	await db.query("DELETE FROM todo WHERE id = ? AND task = ?", [ user_id, task ]);
 	return (true);
+};
+
+exports.getUserAvatar = async (user_id) => {
+	if (!user_id)
+		throw new Error("MISSING_INPUT");
+	if (isNaN(user_id))
+		throw new Error("INVALID_INPUT");
+	const db = getDB();
+	if (!db)
+		throw new Error("DATABASE_NOT_FOUND");
+	const [ rows ] = await db.query("SELECT avatar FROM users WHERE id = ?", [ user_id ]);
+	if (rows.length === 0)
+		throw new Error("USER_NOT_FOUND");
+	return (rows[0].avatar || "assets/images/default.jpg");
 };
 
 exports.getUserTasks = async (user_id) => {

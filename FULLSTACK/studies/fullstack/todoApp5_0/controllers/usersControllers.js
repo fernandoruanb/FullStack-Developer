@@ -1,8 +1,54 @@
 const path = require("path");
 const usersModel = require(path.join(__dirname, "../models/usersModel.js" ));
 const jwt = require("jsonwebtoken"); // It is necessary to configurate JWT and you need cookie-parser and dotenv
+const sharp = require("sharp"); // to edit the image
 
 // Login
+
+exports.uploadAvatar = async (req, res) => {
+	try {
+		if (!req.file)
+			throw new Error("NO_FILE_RECEIVED");
+		const token = req.cookies.token;
+		if (!token)
+			throw new Error("NO_AUTH");
+		const decoded = jwt.verify(token, process.env.JWT_SECRET);
+		const user_id = decoded.user_id;
+
+		const avatarPath = path.join(__dirname, "../assets/uploads/avatars");
+		const avatarFile = path.join(avatarPath, `avatar_${user_id}.png`);
+
+		/*
+			SVG (Scalable Vector Graphics) is used to draws geometry forms as a circle, rectangulers and
+	etc
+
+			cx -> horizontal centre position
+			cy -> vertical centre position
+			r -> ray
+			Buffer.from is a mask for binary data
+			blend combines the mask with the original image 
+			dest-in allows only the new image to input
+		*/
+		await sharp(req.file.path)
+			.resize(350, 350)
+			.png()
+			.composite([{
+				input: Buffer.from(
+					`<svg><circle cx="175" cy="175" r="175"/></svg>`
+				),
+				blend: "dest-in"
+			}])
+			.toFile(avatarFile);
+
+		const avatarPathDB = `/assets/uploads/avatars/avatar_${user_id}.png`;
+
+		await usersModel.uploadAvatar(user_id, avatarPathDB);
+
+		return res.redirect("/getDashBoard");
+	} catch (err) {
+		return res.status(500).json({ error: err.message });
+	}	
+};
 
 exports.completeUserTask = async (req, res) => {
 	if (!req.body || !req.body.task)
@@ -120,13 +166,18 @@ exports.getDashBoard = async (req, res) => {
 		const token = req.cookies.token;
 		if (!token)
 			throw new Error("NO_AUTH");
+
 		const decoded = jwt.verify(token, process.env.JWT_SECRET);
 		const user = decoded.user;
 		const user_id = decoded.user_id;
 
 		const { tasks, status } = await usersModel.getUserTasks(user_id);
+		let avatar = await usersModel.getUserAvatar(user_id);
 
-		return res.render("dashboard", { user, tasks, status });
+		if (!avatar)
+			avatar = 'assets/images/default.jpg';
+
+		return res.render("dashboard", { user, tasks, status, avatar });
 	} catch (err) {
 		return res.status(401).json({ error: err.message });
 	}

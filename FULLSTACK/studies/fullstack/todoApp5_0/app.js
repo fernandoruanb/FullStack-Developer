@@ -23,6 +23,10 @@ app.use(express.json()); // If we need to use JSON, the permission needs to be g
 
 app.use(cookieParser()); // It is necessary to read cookies
 
+// We need to give the folder assets as static to web browser can find images
+
+app.use("/assets", express.static(path.join(__dirname, "assets")));
+
 // PublicRoutes
 app.use("/", publicRoutes);
 
