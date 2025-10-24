@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Sign Up</title>
+	</head>
+	<body>
+		<main>
+			<header>
+				<nav>
+					<a href="/login">Sign In</a>
+				</nav>
+			</header>
+			<section>
+				<h2>Sign Up</h2>
+			</section>
+			<section>
+				<% if ( message && message.length > 0 ) { %>
+					<% message.forEach(function(month) { %>
+						<p style="color: red"> <%= month %> </p>
+					<% }); %>
+				<% } %>
+				<form action="/register" method="POST">
+					<label>Username:</label><br>
+					<input type="text" name="username" placeholder="put your username here" required><br><br>
+					<label>Email:</label><br>
+					<input type="email" name="email" placeholder="put your email here" required><br><br>
+					<label>Password:</label><br>
+					<input type="password" name="password" placeholder="put your password" required><br><br>
+					<label>Confirm Password:</label><br>
+					<input type="password" name="confirmPassword" placeholder="put your password" required><br><br>
+					<button type="submit">Submit</button>
+				</form>
+			</section>
+			<footer>
+				<h6>Keysoft softwares</h6>
+			</footer>
+		</main>
+	</body>
+</html>
