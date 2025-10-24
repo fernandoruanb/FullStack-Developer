@@ -5,6 +5,7 @@ const router = express.Router();
 const usersModel = require(path.join(__dirname, "../models/usersModel.js"));
 const db = require(path.join(__dirname, "../config/dbConnection.js"));
 
+const { validatorMiddleware } = require(path.join(__dirname, "../middlewares/validatorMiddleware.js"));
 const { uploadMiddleware } = require(path.join(__dirname, "../middlewares/uploadMiddleware.js"));
 
 //GET method login
@@ -33,7 +34,7 @@ router.get("/deleteUser", usersControllers.deleteUserForm);
 
 // POST upload
 
-router.post("/uploadAvatar", uploadMiddleware.single("avatar"), usersControllers.uploadAvatar);
+router.post("/uploadAvatar", uploadMiddleware.single("avatar"), validatorMiddleware, usersControllers.uploadAvatar);
 
 // POST method user
 

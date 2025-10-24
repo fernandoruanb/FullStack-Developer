@@ -20,7 +20,7 @@ here perfectly to avoid repeat a lot of times the same validations
 
 exports.validatorMiddleware = [
 
-	body("file").custom(async (value, { req }) => {
+	body("avatar").custom(async (value, { req }) => {
 		if (!req.file)
 			return true; // Nothing to do during other requests
 
