@@ -222,7 +222,7 @@ exports.login = async (req, res) => {
 		return res.redirect("getDashBoard");
 	} catch (err) {
 		let success = null;
-		const message = "Invalid credentials";
+		const message = "Email/Password incorrect";
 		return res.render("loginPage", { success, message } );
 	}
 };

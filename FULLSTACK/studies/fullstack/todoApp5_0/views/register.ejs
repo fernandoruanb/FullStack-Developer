@@ -16,8 +16,10 @@
 				<h2>Sign Up</h2>
 			</section>
 			<section>
-				<% if ( message ) { %>
-					<p style="color: red"> <%= message %> </p>
+				<% if ( message && message.length > 0 ) { %>
+					<% message.forEach(function(month) { %>
+						<p style="color: red"> <%= month %> </p>
+					<% }); %>
 				<% } %>
 				<form action="/register" method="POST">
 					<label>Username:</label><br>

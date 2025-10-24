@@ -2,6 +2,10 @@ const express = require("express");
 const path = require("path");
 const usersControllers = require(path.join(__dirname, "./controllers/usersControllers.js"));
 
+// Central of validations (global)
+
+const { validatorMiddleware, validateRequest } = require(path.join(__dirname, "./middlewares/validatorMiddleware.js"));
+
 // authentication middleware to handle user sessions
 const { requireAuth } = require(path.join(__dirname, "./middlewares/authMiddleware.js"));
 
@@ -26,6 +30,10 @@ app.use(cookieParser()); // It is necessary to read cookies
 // We need to give the folder assets as static to web browser can find images
 
 app.use("/assets", express.static(path.join(__dirname, "assets")));
+
+app.use(validatorMiddleware);
+
+app.use(validateRequest);
 
 // PublicRoutes
 app.use("/", publicRoutes);
