@@ -11,6 +11,8 @@
   "license": "ISC",
   "description": "That is a small fullstack application to create a TODO LIST. That project will be improve with devops techniques as a laboratory",
   "dependencies": {
+    "axios": "^1.12.2",
+    "bad-words": "^3.0.4",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
     "dotenv": "^17.2.3",

@@ -1,7 +1,15 @@
+const path = require("path");
 const { validationResult, body } = require("express-validator");
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/;
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const usernameRegex=/^[a-zA-Z0-9._-]+$/; 
+
+const { checkImageSafety } = require(path.join(__dirname, "../utils/apiCheckImages.js"));
+
+// bad-words check for username and user
+
+const Filter = require("bad-words"); // with commonJS support
+const filter = new Filter();
 
 /*
 
@@ -11,6 +19,22 @@ here perfectly to avoid repeat a lot of times the same validations
 */
 
 exports.validatorMiddleware = [
+
+	body("file").custom(async (value, { req }) => {
+		if (!req.file)
+			return true; // Nothing to do during other requests
+
+		const mime = req.file.mimetype; // get the extension of the image
+		const allowed = ["image/jpeg", "image/png", "image/webp"]; // list of allowed types
+		if (!allowed.includes(mime))
+			throw new Error("Only JPEG, PNG or WEBP images are allowed");
+
+		const result = await checkImageSafety(req.file.path); // call the AI API to analyse the image
+		if (result.nsfw)
+			throw new Error("Image contains innapropriate or unsafe content");
+		return true;
+	}),
+
 	body("password")
 	  .optional()
 	  .trim()
@@ -24,6 +48,12 @@ exports.validatorMiddleware = [
 	  .trim()
 	  .isLength({ min: 3 })
 	  .withMessage("Username must have at least 3 characters")
+	  .custom(value => {
+		if (filter.isProfane(value)) {
+		   throw new Error("Inappropriate or profane username");
+	  	}
+		return true;
+	  })
 	  .matches(usernameRegex)
 	  .withMessage("Username can only contain letters, numbers, dots, underscores or hyphens"),
 
@@ -32,6 +62,12 @@ exports.validatorMiddleware = [
 	  .trim()
 	  .isLength({ min: 3 })
 	  .withMessage("User must have at least 3 characters")
+	  .custom(value => {
+		if (filter.isProfane(value)) {
+		   throw new Error("Innapropriate or profane user");
+		}
+		return true;
+	  }) 
 	  .matches(usernameRegex)
 	  .withMessage("User can only contain letters, numbers, dots, underscoreso or hyphens"),
 

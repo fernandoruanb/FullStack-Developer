@@ -55,3 +55,6 @@ solve upload images with multer ( )
 solve organization with express-validator ( )
 Introduce ORM ( )
 
+npm install bad-words@3.0.4 (compatible with commonJS)
+
+

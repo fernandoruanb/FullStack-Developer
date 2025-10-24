@@ -42,4 +42,17 @@ app.use(requireAuth);
 
 app.use("/", privateRoutes);
 
+// Not found route
+
+app.use((req, res, next) => {
+	return res.render("notFound");
+});
+
+// Error middleware
+
+app.use((err, req, res, next) => {
+	const statusCode = err.status || 500;
+	res.status(statusCode).json({ message: err.message || "INTERNAL_SERVER_ERROR" });
+});
+
 module.exports = app;
