@@ -4,7 +4,7 @@ const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/;
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const usernameRegex=/^[a-zA-Z0-9._-]+$/; 
 
-const { checkImageSafety } = require(path.join(__dirname, "../utils/apiCheckImages.js"));
+const { checkUsernameSafety } = require(path.join(__dirname, "../utils/apiCheckUsername.js"));
 
 // bad-words check for username and user
 
@@ -19,8 +19,8 @@ here perfectly to avoid repeat a lot of times the same validations
 */
 
 exports.validatorMiddleware = [
-
 	// Validate images and more I prefer to use utils functions, works better
+	// trim removes spaces, tabs, etc
 
 	body("password")
 	  .optional()
@@ -35,6 +35,15 @@ exports.validatorMiddleware = [
 	  .trim()
 	  .isLength({ min: 3 })
 	  .withMessage("Username must have at least 3 characters")
+	  .custom(async (value) => {
+		const result = await checkUsernameSafety(value);
+		if (result.nsfw)
+			throw new Error("Innapropiate or profane username API detected!");
+		console.log(result.nsfw);
+		console.log(result.error);
+		console.log("Deu certo para:", value, "data: ", result.data);
+		return true;
+	  })
 	  .custom(value => {
 		if (filter.isProfane(value)) {
 		   throw new Error("Inappropriate or profane username");
@@ -49,6 +58,14 @@ exports.validatorMiddleware = [
 	  .trim()
 	  .isLength({ min: 3 })
 	  .withMessage("User must have at least 3 characters")
+	  .custom(async (value) => {
+                const result = await checkUsernameSafety(value);
+                if (result.nsfw)
+                        throw new Error("Innapropiate or profane username API detected!");
+		console.log(result.nsfw);
+                console.log(result.data);
+                return true;
+          })
 	  .custom(value => {
 		if (filter.isProfane(value)) {
 		   throw new Error("Innapropriate or profane user");
