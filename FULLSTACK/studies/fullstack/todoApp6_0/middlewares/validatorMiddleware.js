@@ -39,9 +39,6 @@ exports.validatorMiddleware = [
 		const result = await checkUsernameSafety(value);
 		if (result.nsfw)
 			throw new Error("Innapropiate or profane username API detected!");
-		console.log(result.nsfw);
-		console.log(result.error);
-		console.log("Deu certo para:", value, "data: ", result.data);
 		return true;
 	  })
 	  .custom(value => {
@@ -62,8 +59,6 @@ exports.validatorMiddleware = [
                 const result = await checkUsernameSafety(value);
                 if (result.nsfw)
                         throw new Error("Innapropiate or profane username API detected!");
-		console.log(result.nsfw);
-                console.log(result.data);
                 return true;
           })
 	  .custom(value => {
