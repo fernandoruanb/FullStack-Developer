@@ -29,6 +29,7 @@ exports.checkImageSafety = async (localPath) => {
 
 		const data = response.data;
 
+		// nsfw means Not Safe For Work (NSFW)
 		const nsfw = data.nudity?.erotica > 0.2 ||
   			data.nudity?.sexual_activity > 0.02 ||
  			data.nudity?.sexual_display > 0.02 ||
