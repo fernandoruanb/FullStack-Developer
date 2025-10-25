@@ -3,10 +3,13 @@ const fs = require("node:fs/promises");
 const usersModel = require(path.join(__dirname, "../models/usersModel.js" ));
 const jwt = require("jsonwebtoken"); // It is necessary to configurate JWT and you need cookie-parser and dotenv
 const sharp = require("sharp"); // to edit the image
-
+const { checkImageSafety } = require(path.join(__dirname, "../utils/apiCheckImages.js"));
 // Login
 
 exports.uploadAvatar = async (req, res) => {
+	let user = null;
+	let user_id = null;
+
 	try {
 		if (!req.file)
 			throw new Error("NO_FILE_RECEIVED");
@@ -14,7 +17,11 @@ exports.uploadAvatar = async (req, res) => {
 		if (!token)
 			throw new Error("NO_AUTH");
 		const decoded = jwt.verify(token, process.env.JWT_SECRET);
-		const user_id = decoded.user_id;
+		user = decoded.user;
+		user_id = decoded.user_id;
+
+		if (!user || !user_id || typeof user !== "string" || typeof user_id !== "number")
+			throw new Error("INVALID_TOKEN_DATA");
 
 		const avatarPath = path.join(__dirname, "../assets/uploads/avatars");
 		// path.extname already includes the dot, you don't need to put it again
@@ -31,6 +38,15 @@ exports.uploadAvatar = async (req, res) => {
 			blend combines the mask with the original image 
 			dest-in allows only the new image to input
 		*/
+
+		// Check innapropriate images
+
+		const result = await checkImageSafety(req.file.path);
+		if (result.nsfw) {
+			await fs.unlink(req.file.path);
+			throw new Error("Forbidden image");
+		}
+
 		await sharp(req.file.path)
 			.resize(350, 350)
 			.png()
@@ -52,6 +68,13 @@ exports.uploadAvatar = async (req, res) => {
 		return res.redirect("/getDashBoard");
 	} catch (err) {
 		console.error("Avatar upload failed", err);
+		if (err.message === "Forbidden image") {
+			const { tasks, status } = await usersModel.getUserTasks(user_id);
+			let avatar = await usersModel.getUserAvatar(user_id);
+
+			let forbidden = "Innapropriate image detected!!! Be careful chosing images!!!";
+			return res.render("dashboard", { user, tasks, status, avatar, forbidden } );
+		}
 		return res.status(500).json({ error: err.message });
 	}	
 };
@@ -179,11 +202,12 @@ exports.getDashBoard = async (req, res) => {
 
 		const { tasks, status } = await usersModel.getUserTasks(user_id);
 		let avatar = await usersModel.getUserAvatar(user_id);
+		let forbidden = null;
 
 		if (!avatar)
 			avatar = 'assets/images/default.jpg';
 
-		return res.render("dashboard", { user, tasks, status, avatar });
+		return res.render("dashboard", { user, tasks, status, avatar, forbidden });
 	} catch (err) {
 		return res.status(401).json({ error: err.message });
 	}

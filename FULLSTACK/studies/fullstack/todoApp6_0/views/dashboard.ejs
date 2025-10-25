@@ -19,6 +19,9 @@
 			<section>
 				<% /* 'accept' to avoid use other extension files */ %>
 				<img src="<%= avatar %>" alt="avatar" style="display:inline;">
+				<% if (forbidden) { %>
+					<p style="color: red"> <%= forbidden %> </p>
+				<% } %>
 				<form action="/uploadAvatar" method="POST" enctype="multipart/form-data">
 					<label for="avatar">ChangeAvatar:</label><br>
 					<input type="file" id="avatar" name="avatar" accept="image/*" placeholder="choose an image" required><br><br>

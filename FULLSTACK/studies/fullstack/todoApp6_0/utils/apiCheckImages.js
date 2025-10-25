@@ -41,7 +41,7 @@ exports.checkImageSafety = async (localPath) => {
   			data.drugs > 0.3;
 
 		//console.log("nsfw:", nsfw, "data:", data);
-		console.log("nsfw:", nsfw); // check if pass or not pass
+		//console.log("nsfw:", nsfw); // check if pass or not pass
 		return { nsfw, details: data };
 	} catch (err) {
 		console.error("Sightengine API error:", err.message);

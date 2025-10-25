@@ -34,7 +34,7 @@ router.get("/deleteUser", usersControllers.deleteUserForm);
 
 // POST upload
 
-router.post("/uploadAvatar", uploadMiddleware.single("avatar"), validatorMiddleware, usersControllers.uploadAvatar);
+router.post("/uploadAvatar", uploadMiddleware.single("avatar"), usersControllers.uploadAvatar);
 
 // POST method user
 

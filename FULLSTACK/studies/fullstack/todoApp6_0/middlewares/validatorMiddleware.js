@@ -20,20 +20,7 @@ here perfectly to avoid repeat a lot of times the same validations
 
 exports.validatorMiddleware = [
 
-	body("avatar").optional().custom(async (value, { req }) => {
-		if (!req.file)
-			return true; // Nothing to do during other requests
-
-		const mime = req.file.mimetype; // get the extension of the image
-		const allowed = ["image/jpeg", "image/png", "image/webp"]; // list of allowed types
-		if (!allowed.includes(mime))
-			throw new Error("Only JPEG, PNG or WEBP images are allowed");
-
-		const result = await checkImageSafety(req.file.path); // call the AI API to analyse the image
-		if (result.nsfw)
-			throw new Error("Image contains innapropriate or unsafe content");
-		return true;
-	}),
+	// Validate images and more I prefer to use utils functions, works better
 
 	body("password")
 	  .optional()
