@@ -1,0 +1,149 @@
+CREATE DATABASE IF NOT EXISTS lab1_store
+    -> DEFAULT CHARACTER SET utf8mb4
+    -> DEFAULT COLLATE utf8mb4_general_ci;
+
+DEFAULT CHARACTER SET utf8mb4 is the most complete set to support all emojis, 
+symbols etc
+
+DEFAULT COLLATE utf8mb4_general_ci;
+charset, comparation general and case insensitive
+
+mysql> CREATE TABLE products(
+    -> id INT AUTO_INCREMENT PRIMARY KEY,
+    -> name VARCHAR(100) NOT NULL,
+    -> category VARCHAR(40) NOT NULL,
+    -> price DECIMAL(10,2) NOT NULL,
+    -> stock INT NOT NULL DEFAULT 0,
+    -> rating DECIMAL(3,2),
+    -> released_at DATE NOT NULL,
+    -> active TINYINT(1) NOT NULL DEFAULT 1
+    -> ) ENGINE=InnoDB;
+
+TINYINT is a small integer that has only 1 byte and it can store from 0 to 255.
+
+INSERT INTO products (name, category, price, stock, rating, released_at, active) VALUES
+('Mechanical Keyboard', 'Electronics', 399.90,  25, 4.70, '2024-11-10', 1),
+('USB-C Hub 7-in-1',    'Electronics', 149.90, 120, 4.30, '2025-02-02', 1),
+('Noise-cancel Headset','Electronics', 699.00,  10, 4.85, '2025-03-20', 1),
+('Cotton T-Shirt',      'Clothing',     59.90, 300, 4.10, '2024-09-05', 1),
+('Running Shoes',       'Clothing',    349.00,  60, 4.55, '2025-01-15', 1);
+
+SELECT id, name AS product, category, price FROM products;
+
+That "product" can change how the data will be presented
+
+SELECT name, price, (price * 0.90) AS price_with_10pct_off
+FROM products;
+
+SELECT name, category, price, stock
+FROM products
+WHERE category = 'Electronics' AND price > 200;
+
+SELECT name, price
+FROM products
+WHERE NOT active = 0 AND (price < 100 OR stock < 20);
+
+-- IN
+SELECT name, category FROM products
+WHERE category IN ('Books','Toys');
+
+-- BETWEEN (inclui as pontas)
+SELECT name, price FROM products
+WHERE price BETWEEN 150 AND 300;
+
+-- LIKE (wildcards % e _)
+SELECT name FROM products
+WHERE name LIKE '%Book%';       
+
+SELECT name FROM products
+WHERE name LIKE 'SQL%';          
+
+SELECT name, released_at
+FROM products
+WHERE released_at >= '2024-01-01';
+
+SELECT name, price
+FROM products
+ORDER BY price DESC
+LIMIT 5;
+
+SELECT id, name, price
+FROM products
+ORDER BY id
+LIMIT 5 OFFSET 5;
+
+DROP DATABASE lab01_store;
+To clean the databse or DROP TABLE to clean table, erase it
+
+-----
+
+SELECT * FROM products
+WHERE rating >= 4.7;
+
+SELECT * FROM products
+WHERE category = 'Electronics'
+AND price BETWEEN 100 AND 500
+ORDER BY price ASC;
+
+SELECT * FROM products
+WHERE name LIKE '%Phone%';
+
+SELECT name, price, (price * 1.12) AS price_with_tax FROM products;
+
+SELECT * FROM products ORDER BY released_at DESC LIMIT 5 OFFSET 2;
+
+-----
+
+SELECT COUNT(*) AS rows_total FROM sales;
+
+SELECT SUM(quantity) AS units_total,
+       AVG(unit_price) AS avg_unit_price
+FROM sales;
+
+SELECT MIN(unit_price) AS cheapest, MAX(unit_price) AS most_expensive
+FROM sales;
+
+SELECT → FROM → WHERE → GROUP BY → HAVING → ORDER BY → LIMIT
+Correct order of clauses
+
+-- receita por linha = quantity * unit_price
+-- receita total por categoria
+SELECT category,
+       SUM(quantity * unit_price) AS revenue,
+       SUM(quantity) AS units
+FROM sales
+GROUP BY category
+ORDER BY revenue DESC;
+
+-- vendas (linhas) por canal e cidade
+SELECT channel, city, COUNT(*) AS orders
+FROM sales
+GROUP BY channel, city
+ORDER BY channel, city;
+
+-- média de preço unitário por produto
+SELECT product, ROUND(AVG(unit_price), 2) AS avg_price
+FROM sales
+GROUP BY product
+ORDER BY avg_price DESC;
+
+-- só linhas de 2025-03 em diante (WHERE)
+SELECT category, SUM(quantity) AS units
+FROM sales
+WHERE sale_date >= '2025-03-01'
+GROUP BY category;
+
+-- categorias com receita agregada > 1000 (HAVING)
+SELECT category, SUM(quantity * unit_price) AS revenue
+FROM sales
+GROUP BY category
+HAVING revenue > 1000
+ORDER BY revenue DESC;
+
+-- TOP 3 produtos por receita (ORDER BY agregado + LIMIT)
+SELECT product, SUM(quantity * unit_price) AS revenue
+FROM sales
+GROUP BY product
+ORDER BY revenue DESC
+LIMIT 3;
+
