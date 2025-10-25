@@ -1,4 +1,5 @@
 const path = require("path");
+const fs = require("node:fs/promises");
 const usersModel = require(path.join(__dirname, "../models/usersModel.js" ));
 const jwt = require("jsonwebtoken"); // It is necessary to configurate JWT and you need cookie-parser and dotenv
 const sharp = require("sharp"); // to edit the image
@@ -16,7 +17,8 @@ exports.uploadAvatar = async (req, res) => {
 		const user_id = decoded.user_id;
 
 		const avatarPath = path.join(__dirname, "../assets/uploads/avatars");
-		const avatarFile = path.join(avatarPath, `avatar_${user_id}.png`);
+		// path.extname already includes the dot, you don't need to put it again
+		const avatarFile = path.join(avatarPath, `avatar_${user_id}.png`); // destination file, new file
 
 		/*
 			SVG (Scalable Vector Graphics) is used to draws geometry forms as a circle, rectangulers and
@@ -40,12 +42,16 @@ exports.uploadAvatar = async (req, res) => {
 			}])
 			.toFile(avatarFile);
 
+		if (req.file.originalname !== "default.jpg")
+			await fs.unlink(req.file.path); // remove temporary file
+
 		const avatarPathDB = `/assets/uploads/avatars/avatar_${user_id}.png`;
 
 		await usersModel.uploadAvatar(user_id, avatarPathDB);
 
 		return res.redirect("/getDashBoard");
 	} catch (err) {
+		console.error("Avatar upload failed", err);
 		return res.status(500).json({ error: err.message });
 	}	
 };
