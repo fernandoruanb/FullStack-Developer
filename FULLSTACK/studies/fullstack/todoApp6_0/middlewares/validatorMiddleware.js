@@ -22,6 +22,14 @@ exports.validatorMiddleware = [
 	// Validate images and more I prefer to use utils functions, works better
 	// trim removes spaces, tabs, etc
 
+	body("captchaInput")
+	  .optional()
+	  .trim()
+	  .notEmpty()
+	  .withMessage("You need to fill captchaInput")
+	  .isLength({ min: 5 })
+	  .withMessage("Captcha has a length minimum of 5 characters"),
+
 	body("password")
 	  .optional()
 	  .trim()

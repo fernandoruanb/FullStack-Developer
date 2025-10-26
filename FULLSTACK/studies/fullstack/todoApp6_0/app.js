@@ -1,6 +1,8 @@
 const express = require("express");
 const path = require("path");
 const usersControllers = require(path.join(__dirname, "./controllers/usersControllers.js"));
+const session = require("express-session");
+const captchaRoutes = require(path.join(__dirname, "./routes/captchaRoutes.js"));
 
 // Central of validations (global)
 
@@ -19,11 +21,21 @@ const cookieParser = require("cookie-parser");
 // Starting our web application using Express as a framework
 const app = express();
 
+app.use(
+	session({
+		secret: "infinity",
+		resave: false,
+		saveUninitialized: true
+	})
+);
+
 app.set("view engine", "ejs"); // using an ejs for training server-side rendering
 app.set("views", path.join(__dirname, "./views"));
 
 app.use(express.urlencoded({ extended: true })); // We need it to capture the data from HTML formularies
 app.use(express.json()); // If we need to use JSON, the permission needs to be give to Express
+
+app.use(captchaRoutes);
 
 app.use(cookieParser()); // It is necessary to read cookies
 

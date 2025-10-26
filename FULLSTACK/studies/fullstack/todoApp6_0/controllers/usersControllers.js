@@ -4,7 +4,24 @@ const usersModel = require(path.join(__dirname, "../models/usersModel.js" ));
 const jwt = require("jsonwebtoken"); // It is necessary to configurate JWT and you need cookie-parser and dotenv
 const sharp = require("sharp"); // to edit the image
 const { checkImageSafety } = require(path.join(__dirname, "../utils/apiCheckImages.js"));
+const svgCaptcha = require("svg-captcha");
 // Login
+
+exports.getCaptcha = async (req, res) => {
+	// size -> define the quantity of characters you want
+	// noise -> add random lines and curves to difficult the automatic reading
+	const captcha = svgCaptcha.create({
+		size: 5,
+		noise: 3,
+		color: true,
+		background: "#f4f4f4"
+	});
+	// Save the text in request session
+	req.session.captcha = captcha.text;
+	// Specif the svg image
+	res.set("Content-Type", "image/svg+xml");
+	res.status(200).send(captcha.data);
+};
 
 exports.uploadAvatar = async (req, res) => {
 	let user = null;
@@ -214,12 +231,19 @@ exports.getDashBoard = async (req, res) => {
 }
 
 exports.login = async (req, res) => {
-	if (!req.body || !req.body.email || !req.body.password)
+	if (!req.body || !req.body.email || !req.body.password || !req.body.captchaInput)
 		return res.status(400).json({ error: "MISSING_INPUT" });
-	
-	try {
-		const { email, password } = req.body;
 
+	try {
+		const { email, password, captchaInput } = req.body;
+		let message = null;
+		let success = [];
+
+		if (!req.session || captchaInput !== req.session.captcha) {
+			message = "Invalid captcha answer";
+			return res.render("loginPage", { message, success });
+		};
+	
 		await usersModel.tryLogin(email, password);
 
 		const user = await usersModel.getLoginUsername(email);
@@ -251,7 +275,7 @@ exports.login = async (req, res) => {
 
 		return res.redirect("getDashBoard");
 	} catch (err) {
-		let success = null;
+		let success = [];
 		const message = "Email/Password incorrect";
 		return res.render("loginPage", { success, message } );
 	}
@@ -284,15 +308,24 @@ exports.addTodoTask = async (req, res) => {
 };
 
 exports.register = async (req, res) => {
-	if (!req.body || !req.body.username || !req.body.password || !req.body.email || !req.body.confirmPassword)
+	if (!req.body || !req.body.username || !req.body.password || !req.body.email || !req.body.confirmPassword || !req.body.captchaInput)
 		return res.status(400).json({ error: "MISSING_INPUT" });
 
 	try {
-		const { username, password, email, confirmPassword } = req.body;
+		const { username, password, email, confirmPassword, captchaInput } = req.body;
 
 		if (typeof username !== "string" || typeof password !== "string" || typeof email !== "string" || typeof confirmPassword !== "string")
 			return res.status(400).json({ error: "INVALID_INPUT" });
-	
+
+		let message = null;
+                let success = [];
+
+                if (!req.session || captchaInput !== req.session.captcha) {
+			console.error("Invalid captcha answer detected");
+                        message = "Invalid captcha answer";
+                        return res.render("register", { message });
+                };
+
 		let user = null;
 
 		if (password !== confirmPassword)
@@ -306,8 +339,7 @@ exports.register = async (req, res) => {
 
 		await usersModel.addUser(user_id, "It's your first task :)");
 
-		const success = "Registered successfully!";
-		const message = null;
+		success.push("Registered successfully!");
 
 		return res.render("loginPage", { success, message });
 	} catch (err) {
