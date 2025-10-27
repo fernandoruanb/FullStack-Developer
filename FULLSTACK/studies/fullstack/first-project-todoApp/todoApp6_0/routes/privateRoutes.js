@@ -9,6 +9,8 @@ const { uploadMiddleware } = require(path.join(__dirname, "../middlewares/upload
 
 //GET 2fa
 
+router.post("/verify2faDirect", usersControllers.verify2faDirect);
+
 router.get("/2fa", usersControllers.get2faPage);
 
 router.post("/verify2fa", usersControllers.verify2fa);

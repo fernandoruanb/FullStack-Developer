@@ -8,18 +8,22 @@
 	</head>
 	<body>
 		<main>
+			<header>
+				<a href="/2fa">Generate a new qrcode</a>
+			</header>
 			<section>
 				<h1>Two authenticator factor</h1>
 				<p>Welcome <strong> <%= user %> </strong> let's go the next step</p>
 			</section>
 			<section>
-				<img src="<%= qrCodeDataURL %>" alt="qrcode">
 				<% if (message) { %>
 					<p style="color: red"> <%= message %> </p>
 				<% } %>
-				<form action="/verify2fa" method="POST">
-					<input type="hidden" name="qrCodeDataURL" value="<%= qrCodeDataURL %>">
-					<input type="text" name="code" placeholder="Type the code here" required><br><br>
+				<form action="/verify2faDirect" method="POST">
+					<label>
+						Insert the 2FA Code:
+						<input type="text" name="code" placeholder="Type the code here" required><br><br>
+					</label>
 					<button type="submit">Submit</button>
 				</form>
 			</section>

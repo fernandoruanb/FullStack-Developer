@@ -92,7 +92,7 @@ exports.uploadAvatar = async (req, res) => {
 			const { tasks, status } = await usersModel.getUserTasks(user_id);
 			let avatar = await usersModel.getUserAvatar(user_id);
 
-			let forbidden = "Innapropriate image detected!!! Be careful chosing images!!!";
+			let forbidden = "Innapropriate image detected!!! Be careful choosing images!!!";
 			return res.render("dashboard", { user, tasks, status, avatar, forbidden } );
 		}
 		return res.status(500).json({ error: err.message });
@@ -233,8 +233,57 @@ exports.getDashBoard = async (req, res) => {
 	}
 }
 
-exports.verify2fa = async (req, res) => {
+exports.verify2faDirect = async (req, res) => {
 	if (!req.body || !req.body.code)
+		return res.status(400).json({ error: "MISSING_INPUT" });
+	let message = null;
+	let success = null;
+	let user = null;
+	let user_id = null;
+	try {
+                const { code } = req.body;
+
+                const token = req.cookies.token;
+                if (!token)
+                        throw new Error("NO_AUTH");
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                if (!decoded)
+                        throw new Error("ERROR_DECODING_TOKEN");
+
+                user = decoded.user;
+                user_id = decoded.user_id;
+
+                if (typeof user_id !== "number" || typeof code !== "string")
+                        throw new Error("INVALID_INPUT");
+
+                const { twoFactorSecret } = await usersModel.get2fa(user_id);
+
+		if (!twoFactorSecret)
+			throw new Error("NO_2FA_DONE");
+
+                // secret -> base32, encoding -> base32, token the code the user gives to us windows 1 30s of tolerance
+                const verified = speakeasy.totp.verify({
+                        secret: twoFactorSecret,
+                        encoding: "base32",
+                        token: code,
+                        window: 1
+                });
+
+                if (!verified) {
+                        message = "Invalid code, try again";
+                        console.error("Invalid code");
+                        return res.render("loginPage", { message, success });
+                }
+		return res.redirect("/getDashBoard");
+	} catch {
+		console.error("Something wrong happened");
+		return res.render("loginPage", { message, success });
+	}
+	
+};
+
+exports.verify2fa = async (req, res) => {
+	if (!req.body || !req.body.code || !req.body.qrCodeDataURL)
 		return res.status(400).json({ error: "MISSING_INPUT" });
 
 	let message = null;
@@ -243,7 +292,7 @@ exports.verify2fa = async (req, res) => {
 
 	try {
 
-		const { code } = req.body;
+		const { code, qrCodeDataURL } = req.body;
 
 		const token = req.cookies.token;
 		if (!token)
@@ -252,6 +301,7 @@ exports.verify2fa = async (req, res) => {
 		if (!decoded)
 			throw new Error("ERROR_DECODING_TOKEN");
 
+		user = decoded.user;
 		user_id = decoded.user_id;
 
 		if (typeof user_id !== "number" || typeof code !== "string")
@@ -270,7 +320,7 @@ exports.verify2fa = async (req, res) => {
 		if (!verified) {
 			message = "Invalid code, try again";
 			console.error("Invalid code");
-			return res.render("loginPage", { message, success });
+			return res.render("2fa", { user, qrCodeDataURL, message });
 		}
 
 		return res.redirect("/getDashBoard");
@@ -308,7 +358,7 @@ exports.get2faPage = async (req, res) => {
 		return res.render("2fa", { user, qrCodeDataURL, message } );
 	} catch (err) {
 		message = "Error in two factor authentication, try again";
-		return res.render("login", { message, success } );
+		return res.render("2fa", { user, message, qrCodeDataURL } );
 	}
 };
 
@@ -358,14 +408,17 @@ exports.login = async (req, res) => {
 		});
 
 		if (twoFactorEnable) {
-			if (twoFactorSecret === null)
-				return res.render("/2fa", { user, user_id, message });
+			if (twoFactorSecret === null) {
+				return res.redirect("/2fa");
+			}
+			return res.render("2fa_after", { user, message });
 		}
 
 		return res.redirect("/getDashBoard");
 	} catch (err) {
 		let success = [];
-		const message = "Email/Password incorrect";
+		//const message = "Email/Password incorrect";
+		message = err;
 		return res.render("loginPage", { success, message } );
 	}
 };
