@@ -5,6 +5,9 @@ const jwt = require("jsonwebtoken"); // It is necessary to configurate JWT and y
 const sharp = require("sharp"); // to edit the image
 const { checkImageSafety } = require(path.join(__dirname, "../utils/apiCheckImages.js"));
 const svgCaptcha = require("svg-captcha");
+const speakeasy = require("speakeasy");
+const qrcode = require("qrcode");
+
 // Login
 
 exports.getCaptcha = async (req, res) => {
@@ -230,6 +233,38 @@ exports.getDashBoard = async (req, res) => {
 	}
 }
 
+exports.get2faPage = async (req, res) => {
+
+	let message = null;
+	let success = null;
+
+	try {
+		const token = req.cookies.token;
+		if (!token)
+			throw new Error("INVALID_TOKEN");
+
+		const decoded = jwt.verify(token, process.env.JWT_SECRET);
+		if (!decoded)
+			throw new Error("INVALID_DECODING");
+
+		const user = decoded.user;
+		const user_id = decoded.user_id;
+		const secret = speakeasy.generateSecret({ name: `MyApp ${user}` });
+
+		await usersModel.set2faSecret(secret.base32, user_id);
+
+		const qrCodeDataURL = await qrcode.toDataURL(secret.otpauth_url);
+
+		//check data
+		//console.log("secret:", secret.base32, "qrcodeURL:", qrCodeDataURL);
+
+		return res.render("2fa", { user, qrCodeDataURL } );
+	} catch (err) {
+		message = "Error in two factor authentication, try again";
+		return res.render("login", { message, success } );
+	}
+};
+
 exports.login = async (req, res) => {
 	if (!req.body || !req.body.email || !req.body.password || !req.body.captchaInput)
 		return res.status(400).json({ error: "MISSING_INPUT" });
@@ -253,6 +288,8 @@ exports.login = async (req, res) => {
 		if (!user_id)
 			throw new Error("INVALID_IDS");
 
+		const { twoFactorEnable, twoFactorSecret } = await usersModel.get2fa(user_id);
+
 		// Useful data === payload
 		const payload = { email, user, user_id };
 
@@ -273,7 +310,12 @@ exports.login = async (req, res) => {
 			maxAge: 60 * 60 * 1000 // 1h in miliseconds
 		});
 
-		return res.redirect("getDashBoard");
+		if (twoFactorEnable) {
+			if (twoFactorSecret === null)
+				return res.redirect("/2fa");
+		}
+
+		return res.redirect("/getDashBoard");
 	} catch (err) {
 		let success = [];
 		const message = "Email/Password incorrect";
@@ -312,9 +354,10 @@ exports.register = async (req, res) => {
 		return res.status(400).json({ error: "MISSING_INPUT" });
 
 	try {
-		const { username, password, email, confirmPassword, captchaInput } = req.body;
+		// enable2fa -> undefined if the user did not fill the checkbox or string "true" if they did it
+		const { username, password, email, confirmPassword, captchaInput, enable2fa } = req.body;
 
-		if (typeof username !== "string" || typeof password !== "string" || typeof email !== "string" || typeof confirmPassword !== "string")
+		if (typeof username !== "string" || typeof password !== "string" || typeof email !== "string" || typeof confirmPassword !== "string" || typeof captchaInput !== "string")
 			return res.status(400).json({ error: "INVALID_INPUT" });
 
 		let message = null;
@@ -332,7 +375,7 @@ exports.register = async (req, res) => {
 			throw new Error("PASSWORD_MISMATCH");
 
 		// Registering the user
-		await usersModel.registerUser(username, password, email);
+		await usersModel.registerUser(username, password, email, enable2fa);
 		// Registering the user's todo
 
 		const user_id = await usersModel.getUsersId(username);

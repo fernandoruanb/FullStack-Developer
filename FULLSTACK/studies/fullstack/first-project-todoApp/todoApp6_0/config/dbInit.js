@@ -37,6 +37,8 @@ async function initDatabase() {
 			email VARCHAR(255) UNIQUE NOT NULL,
 			password VARCHAR(255) NOT NULL,
 			avatar VARCHAR(255) DEFAULT 'assets/images/default.jpg',
+			twoFactorEnable BOOLEAN DEFAULT FALSE,
+			twoFactorSecret VARCHAR(100) DEFAULT NULL,
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 			);

@@ -159,11 +159,43 @@ exports.tryLogin = async (email, password) => {
 	return (true);
 };
 
-exports.registerUser = async (username, password, email) => {
+exports.set2faSecret = async (secret, user_id) => {
+	if (!secret || !user_id)
+		throw new Error("MISSING_INPUT");
+	if (typeof secret !== "string" || typeof user_id !== "number")
+		throw new Error("INVALID_INPUT");
+	const db = getDB();
+	if (!db)
+		throw new Error("DATABASE_NOT_FOUND");
+	await db.query("UPDATE users SET twoFactorSecret = ? WHERE id = ?", [ secret, user_id ]);
+	return (true);
+};
+
+exports.get2fa = async (user_id) => {
+	if (!user_id)
+		throw new Error("MISSING_INPUT");
+	if (typeof user_id !== "number")
+		throw new Error("INVALID_INPUT");
+	const db = getDB();
+	if (!db)
+		throw new Error("DATABASE_NOT_FOUND");
+	const [ rows ] = await db.query("SELECT twoFactorEnable, twoFactorSecret FROM users WHERE id = ?", [user_id]);
+	if (rows.length === 0)
+		throw new Error("NOT_FOUND");
+
+	const twoFactorEnable = rows[0].twoFactorEnable;
+	const twoFactorSecret = rows[0].twoFactorSecret;
+
+	return ({ twoFactorEnable, twoFactorSecret });
+};
+
+exports.registerUser = async (username, password, email, enable2fa) => {
 	if (!username || !password || !email)
 		throw new Error("MISSING_INPUT");
 	if (typeof username !== "string" || typeof password !== "string" || typeof email !== "string")
 		throw new Error("INVALID_INPUT");
+	// true or false directly
+	enable2fa = enable2fa === "true";
 	const db = getDB();
 	if (!db)
 		throw new Error("DATABASE_NOT_FOUND");
@@ -172,7 +204,7 @@ exports.registerUser = async (username, password, email) => {
 	const password_hash = await bcrypt.hash(password, 10);
 	if (!password_hash)
 		throw new Error("ERROR_HASH_PASSWORD");
-	await db.query("INSERT INTO users (username, password, email) VALUES (?, ?, ?)", [username, password_hash, email]);
+	await db.query("INSERT INTO users (username, password, email, twoFactorEnable) VALUES (?, ?, ?, ?)", [username, password_hash, email, enable2fa]);
 	return (true);
 };
 
