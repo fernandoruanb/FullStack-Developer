@@ -16,6 +16,7 @@ const io = new Server(server);
 
 // Register each event and the actions to be done
 registerServer(io);
+console.log("Socket Server ready!");
 
 // Central of validations (global)
 
