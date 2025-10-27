@@ -60,3 +60,7 @@ npm install bad-words@3.0.4 (compatible with commonJS)
 To install captcha you need express-session and svg-captcha to create the image of captcha and save the captcha.text in the request to compare after during the checking
 
 to 2fa you need speakeasy, qrcode
+
+DESCRIBE table -> show details about that target table
+
+

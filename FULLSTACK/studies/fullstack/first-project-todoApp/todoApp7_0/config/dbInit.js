@@ -44,6 +44,19 @@ async function initDatabase() {
 			);
 		`);
 
+		// Channels, ON UPDATE CURRENT_TIMESTAMP to update automatically that column
+
+		await connection.query(`
+			CREATE TABLE IF NOT EXISTS channels (
+			id INT AUTO_INCREMENT PRIMARY KEY,
+			content TEXT NOT NULL,
+			sender_id INT NOT NULL,
+			receiver_id INT NOT NULL,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+			);
+		`);
+
 	} catch (err) {
 		console.error("Error initializing the database: ", err);
 		process.exit(1);

@@ -4,6 +4,19 @@ const usersControllers = require(path.join(__dirname, "./controllers/usersContro
 const session = require("express-session");
 const captchaRoutes = require(path.join(__dirname, "./routes/captchaRoutes.js"));
 
+// Dynamic of sockets
+
+const registerServer = require(path.join(__dirname, "./config/socket.js"));
+const http = require("http");
+const { Server } = require("socket.io");
+const server = http.createServer(express);
+
+// Listen and send events to all browsers connected
+const io = new Server(server);
+
+// Register each event and the actions to be done
+registerServer(io);
+
 // Central of validations (global)
 
 const { validatorMiddleware, validateRequest } = require(path.join(__dirname, "./middlewares/validatorMiddleware.js"));
