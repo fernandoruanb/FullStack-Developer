@@ -38,7 +38,7 @@ exports.uploadAvatar = async (req, res) => {
 			throw new Error("NO_AUTH");
 		const decoded = jwt.verify(token, process.env.JWT_SECRET);
 		user = decoded.user;
-		user_id = decoded.user_id;
+		user_id = parseInt(decoded.user_id, 10);
 
 		if (!user || !user_id || typeof user !== "string" || typeof user_id !== "number")
 			throw new Error("INVALID_TOKEN_DATA");
@@ -233,6 +233,53 @@ exports.getDashBoard = async (req, res) => {
 	}
 }
 
+exports.verify2fa = async (req, res) => {
+	if (!req.body || !req.body.code)
+		return res.status(400).json({ error: "MISSING_INPUT" });
+
+	let message = null;
+	let user_id = null;
+	let success = null;
+
+	try {
+
+		const { code } = req.body;
+
+		const token = req.cookies.token;
+		if (!token)
+			throw new Error("NO_AUTH");
+		const decoded = jwt.verify(token, process.env.JWT_SECRET);
+		if (!decoded)
+			throw new Error("ERROR_DECODING_TOKEN");
+
+		user_id = decoded.user_id;
+
+		if (typeof user_id !== "number" || typeof code !== "string")
+			throw new Error("INVALID_INPUT");
+
+		const { twoFactorSecret } = await usersModel.get2fa(user_id);
+
+		// secret -> base32, encoding -> base32, token the code the user gives to us windows 1 30s of tolerance
+		const verified = speakeasy.totp.verify({
+			secret: twoFactorSecret,
+			encoding: "base32",
+			token: code,
+			window: 1
+		});
+
+		if (!verified) {
+			message = "Invalid code, try again";
+			console.error("Invalid code");
+			return res.render("loginPage", { message, success });
+		}
+
+		return res.redirect("/getDashBoard");
+	} catch (err) {
+		message = "An error happened, try again";
+		return res.render("loginPage", { message, success });
+	}
+};
+
 exports.get2faPage = async (req, res) => {
 
 	let message = null;
@@ -258,7 +305,7 @@ exports.get2faPage = async (req, res) => {
 		//check data
 		//console.log("secret:", secret.base32, "qrcodeURL:", qrCodeDataURL);
 
-		return res.render("2fa", { user, qrCodeDataURL } );
+		return res.render("2fa", { user, qrCodeDataURL, message } );
 	} catch (err) {
 		message = "Error in two factor authentication, try again";
 		return res.render("login", { message, success } );
@@ -312,7 +359,7 @@ exports.login = async (req, res) => {
 
 		if (twoFactorEnable) {
 			if (twoFactorSecret === null)
-				return res.redirect("/2fa");
+				return res.render("/2fa", { user, user_id, message });
 		}
 
 		return res.redirect("/getDashBoard");
