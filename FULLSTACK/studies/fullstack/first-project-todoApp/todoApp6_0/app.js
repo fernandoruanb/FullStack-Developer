@@ -64,7 +64,9 @@ app.use((req, res, next) => {
 
 app.use((err, req, res, next) => {
 	const statusCode = err.status || 500;
-	res.status(statusCode).json({ message: err.message || "INTERNAL_SERVER_ERROR" });
+	if (err.code === "LIMIT_FILE_SIZE")
+		return res.redirect("/getDashBoard?error=file+too+large");
+	return res.status(statusCode).json({ message: err.message || "INTERNAL_SERVER_ERROR" });
 });
 
 module.exports = app;

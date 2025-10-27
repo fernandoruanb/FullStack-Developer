@@ -31,6 +31,7 @@ exports.uploadAvatar = async (req, res) => {
 	let user_id = null;
 
 	try {
+		let avatarFile = null;
 		if (!req.file)
 			throw new Error("NO_FILE_RECEIVED");
 		const token = req.cookies.token;
@@ -45,7 +46,8 @@ exports.uploadAvatar = async (req, res) => {
 
 		const avatarPath = path.join(__dirname, "../assets/uploads/avatars");
 		// path.extname already includes the dot, you don't need to put it again
-		const avatarFile = path.join(avatarPath, `avatar_${user_id}.png`); // destination file, new file
+		avatarFile = path.join(avatarPath, `avatar_${user_id}.png`); // destination file, new file
+			
 
 		/*
 			SVG (Scalable Vector Graphics) is used to draws geometry forms as a circle, rectangulers and
@@ -211,7 +213,12 @@ exports.deleteUserById = async (req, res) => {
 
 exports.getDashBoard = async (req, res) => {
 
+	let forbidden = null;
 	try {
+		const query = req.query;
+		if (query !== undefined) {
+			forbidden = query.error;
+		}
 		const token = req.cookies.token;
 		if (!token)
 			throw new Error("NO_AUTH");
@@ -222,10 +229,9 @@ exports.getDashBoard = async (req, res) => {
 
 		const { tasks, status } = await usersModel.getUserTasks(user_id);
 		let avatar = await usersModel.getUserAvatar(user_id);
-		let forbidden = null;
 
 		if (!avatar)
-			avatar = 'assets/images/default.jpg';
+			avatar = '/assets/images/default.jpg';
 
 		return res.render("dashboard", { user, tasks, status, avatar, forbidden });
 	} catch (err) {
