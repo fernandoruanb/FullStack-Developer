@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Dashboard</title>
+	</head>
+	<body>
+		<main>
+			<header>
+				<nav>
+					<a href="/addTask">Add a new temporary task</a>
+					<a href="/deleteTask">Delete a temporary task</a>
+					<a href="/addTodoTaskPage">Add a permanent task</a>
+					<a href="/searchUser">Search User</a>
+					<a href="/logout">Logout</a>
+				</nav>
+			</header>
+			<section>
+				<% /* 'accept' to avoid use other extension files */ %>
+				<img src="<%= avatar %>" alt="avatar" style="display:inline;">
+				<% if (forbidden) { %>
+					<p style="color: red"> <%= forbidden %> </p>
+				<% } %>
+				<form action="/uploadAvatar" method="POST" enctype="multipart/form-data">
+					<label for="avatar">ChangeAvatar:</label><br>
+					<input type="file" id="avatar" name="avatar" accept="image/*" placeholder="choose an image" required><br><br>
+					<button type="submit">Change Avatar</button>
+				</form>
+				<h1>Dashboard of TodoApp v1.0 :)</h1>
+				<h2>Welcome <strong> <%= user %> </strong> to your exclusive profile</h2>
+			</section>
+			<section>
+				<% /* thead (table header) tbody (table body) tr (table row) td (table data_) */ %>
+				<% /* th (header cell) */ %>
+				<% if (tasks && tasks.length > 0 && status && status.length > 0) { %>
+						<table border=1>
+							<thead>
+								<tr>
+									<th>Id</th>
+									<th>Tasks</th>
+									<th>Status</th>
+									<th>Options</th>
+								</tr>
+							</thead>
+							<tbody>
+							<% tasks.forEach((task, index) => { %>
+								<tr>
+									<td> <%= index + 1 %> </td>
+									<td> <%= task %> </td>
+									<td> <%= status[index] %> </td>
+									<td>
+										<form action="/buttonUpdateTask/<%= encodeURIComponent(task) %>" method="GET" style="display:inline;">
+											<button>Update</button>
+										</form>
+										<form action="/buttonDeleteTask" method="POST" style="display:inline;">
+											<input type="hidden" name="task" value="<%= task %>">
+										<button type="submit">Delete</button>
+										</form>
+										<form action="/buttonCompleteTask" method="POST" style="display:inline;">
+											<input type="hidden" name="task" value="<%= task %>">
+											<button type="submit">Complete</button>
+										</form>
+									</td>
+								</tr>
+							<% }) %>
+							</tbody>
+						</table>
+				<% } else { %>
+					<p>No tasks found</p>
+				<% } %>
+			</section>
+			<footer>
+				<h6>Keysoft softwares</h6>
+			</footer>
+		</main>
+	</body>
+</html>
