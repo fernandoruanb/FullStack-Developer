@@ -20,7 +20,8 @@ exports.uploadMiddleware = multer({
 					return cb(new Error("NO_AUTH"));
 				const decoded = jwt.verify(token, process.env.JWT_SECRET);
 				const user_id = decoded.user_id;
-				cb(null, `avatar_${user_id}${path.extname(file.originalname)}`);
+				// I chose .tmp extension to avoid conflicts. It is only the temporary file
+				cb(null, `avatar_${user_id}.tmp`);
 			} catch (err) {
 				cb(err);
 			}
