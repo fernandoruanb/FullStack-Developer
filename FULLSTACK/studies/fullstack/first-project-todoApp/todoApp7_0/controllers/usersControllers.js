@@ -480,7 +480,7 @@ exports.register = async (req, res) => {
 		if (typeof username !== "string" || typeof password !== "string" || typeof email !== "string" || typeof confirmPassword !== "string" || typeof captchaInput !== "string")
 			return res.status(400).json({ error: "INVALID_INPUT" });
 
-		let message = null;
+		let message = [];
                 let success = [];
 
                 if (!req.session || captchaInput !== req.session.captcha) {
@@ -506,14 +506,14 @@ exports.register = async (req, res) => {
 
 		return res.render("loginPage", { success, message });
 	} catch (err) {
-		let message = null;
+		let message = [];
 
 		if (err.message === "PASSWORD_MISMATCH")
-			message = "Password Mismatch";
+			message.push("Password Mismatch");
 		else if (err.code === "ER_DUP_ENTRY")
-			message = "The user already exists";
+			message.push("The user already exists");
 		else
-			message = err;
+			message.push(err.message);
 			//message = "A problem happened, try again";
 		return res.render("register", { message });
 	}
