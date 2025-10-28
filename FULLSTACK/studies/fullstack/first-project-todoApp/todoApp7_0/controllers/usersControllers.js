@@ -61,7 +61,6 @@ exports.uploadAvatar = async (req, res) => {
 		const avatarPath = path.join(__dirname, "../assets/uploads/avatars");
 		// path.extname already includes the dot, you don't need to put it again
 		avatarFile = path.join(avatarPath, `avatar_${user_id}.png`); // destination file, new file
-			
 
 		/*
 			SVG (Scalable Vector Graphics) is used to draws geometry forms as a circle, rectangulers and
