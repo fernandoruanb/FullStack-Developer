@@ -28,6 +28,7 @@ module.exports = (io) => {
 			io.emit("updateUsers", Array.from(users.values()));
 			io.emit("serverMessage", `${name}: arrived to that room`);
 			io.emit("sendMessage", messages);
+			io.emit("updateChannels", allChannels);
 		});
 
 		socket.on("joinChannel", async ({ user, roomName }) => {

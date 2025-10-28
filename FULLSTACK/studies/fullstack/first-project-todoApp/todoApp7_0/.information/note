@@ -1,5 +1,20 @@
 CREATE DATABASE todoDb; // to create a database
 ALTER USER 'root'@'localhost' IDENTIFIED BY caching_sha2_password BY 'rootpassword'; // to change the password if it uses that method
+mysql> SELECT User,Host,plugin,authentication_string FROM mysql.user;
++------------------+-----------+-----------------------+------------------------------------------------------------------------+
+| User             | Host      | plugin                | authentication_string                                                  |
++------------------+-----------+-----------------------+------------------------------------------------------------------------+
+| debian-sys-maint | localhost | caching_sha2_password | 
+                                                                            
+| mysql.infoschema | localhost | caching_sha2_password | 
+| mysql.session    | localhost | caching_sha2_password | 
+| mysql.sys        | localhost | caching_sha2_password | 
+| root             | localhost | auth_socket           |                                                                        |
++------------------+-----------+-----------------------+------------------------------------------------------------------------+
+5 rows in set (0,00 sec)
+
+mysql> ALTER USER 'root'@'localhost' IDENTIFIED WITH caching_sha2_password BY 'rootpassword';
+Query OK, 0 rows affected (0,04 sec)
 
 wget https://dev.mysql.com/get/mysql-apt-config_0.8.32-1_all.deb
 

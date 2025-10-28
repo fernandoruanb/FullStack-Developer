@@ -343,7 +343,9 @@ exports.verify2fa = async (req, res) => {
 
 		return res.redirect("/getDashBoard");
 	} catch (err) {
-		message = "An error happened, try again";
+		message = [];
+		success = [];
+		message.push("An error happened, try again");
 		return res.render("loginPage", { message, success });
 	}
 };
@@ -430,6 +432,7 @@ exports.login = async (req, res) => {
 			if (twoFactorSecret === null) {
 				return res.redirect("/2fa");
 			}
+			message = null;
 			return res.render("2fa_after", { user, message });
 		}
 
@@ -471,15 +474,15 @@ exports.register = async (req, res) => {
 	if (!req.body || !req.body.username || !req.body.password || !req.body.email || !req.body.confirmPassword || !req.body.captchaInput)
 		return res.status(400).json({ error: "MISSING_INPUT" });
 
+	let message = [];
+        let success = [];
+
 	try {
 		// enable2fa -> undefined if the user did not fill the checkbox or string "true" if they did it
 		const { username, password, email, confirmPassword, captchaInput, enable2fa } = req.body;
 
 		if (typeof username !== "string" || typeof password !== "string" || typeof email !== "string" || typeof confirmPassword !== "string" || typeof captchaInput !== "string")
 			return res.status(400).json({ error: "INVALID_INPUT" });
-
-		let message = [];
-                let success = [];
 
                 if (!req.session || captchaInput !== req.session.captcha) {
 			console.error("Invalid captcha answer detected");
@@ -504,7 +507,6 @@ exports.register = async (req, res) => {
 
 		return res.render("loginPage", { success, message });
 	} catch (err) {
-		let message = [];
 
 		if (err.message === "PASSWORD_MISMATCH")
 			message.push("Password Mismatch");
