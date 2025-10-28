@@ -17,8 +17,8 @@
 			</section>
 			<section>
 				<% if ( message && message.length > 0 ) { %>
-					<% message.forEach(function(error) { %>
-						<p style="color: red"> <%= error %> </p>
+					<% message.forEach(mes => { %>
+						<p style="color: red"> <%= mes %> </p>
 					<% }); %>
 				<% } %>
 				<form action="/register" method="POST">

@@ -256,8 +256,8 @@ exports.getDashBoard = async (req, res) => {
 exports.verify2faDirect = async (req, res) => {
 	if (!req.body || !req.body.code)
 		return res.status(400).json({ error: "MISSING_INPUT" });
-	let message = null;
-	let success = null;
+	let message = [];
+	let success = [];
 	let user = null;
 	let user_id = null;
 	try {
@@ -290,7 +290,7 @@ exports.verify2faDirect = async (req, res) => {
                 });
 
                 if (!verified) {
-                        message = "Invalid code, try again";
+                        message.push("Invalid code, try again");
                         console.error("Invalid code");
                         return res.render("loginPage", { message, success });
                 }
@@ -299,7 +299,6 @@ exports.verify2faDirect = async (req, res) => {
 		console.error("Something wrong happened");
 		return res.render("loginPage", { message, success });
 	}
-	
 };
 
 exports.verify2fa = async (req, res) => {
@@ -386,10 +385,11 @@ exports.login = async (req, res) => {
 	if (!req.body || !req.body.email || !req.body.password || !req.body.captchaInput)
 		return res.status(400).json({ error: "MISSING_INPUT" });
 
+	let message = [];
+	let success = [];
+
 	try {
 		const { email, password, captchaInput } = req.body;
-		let message = [];
-		let success = [];
 
 		if (!req.session || captchaInput !== req.session.captcha) {
 			message.push("Invalid captcha answer");
@@ -436,9 +436,8 @@ exports.login = async (req, res) => {
 
 		return res.redirect("/getDashBoard");
 	} catch (err) {
-		let success = [];
 		//const message = "Email/Password incorrect";
-		message = err;
+		message.push(err);
 		return res.render("loginPage", { success, message } );
 	}
 };
@@ -520,13 +519,13 @@ exports.register = async (req, res) => {
 };
 
 exports.loginPage = (req, res) => {
-	const message = null;
-	const success = null;
+	const message = [];
+	const success = [];
 	res.render("loginPage", { message, success } );
 };
 
 exports.signUpPage = (req, res) => {
-	const message = null;
+	const message = [];
 	res.render("register", { message } );
 };
 

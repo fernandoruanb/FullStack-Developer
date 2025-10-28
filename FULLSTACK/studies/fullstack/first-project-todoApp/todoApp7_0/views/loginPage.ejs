@@ -21,9 +21,13 @@
 						<p style="color: green"> <%= suc %> </p>
 					<% }) %>
 				<% } %>
-				<% if (message) { %>
-					<p style="color: red"> <%= message %> </p>
+
+				<% if (message && message.length > 0) { %>
+					<% message.forEach(mes => { %>
+						<p style="color: red"> <%= mes %> </p>
+					<% }) %>
 				<% } %>
+
 				<form action="/login" method="POST">
 					<label>Email:</label><br>
 					<input type="email" name="email" placeholder="Insert your email here" required><br><br>
