@@ -18,6 +18,11 @@
 				<h2>Welcome to the chat <%= user %> :)</h2>
 			</section>
 			<section>
+				<h4>Channels</h4>
+				<ul id="allChannels">
+				</ul>
+			</section>
+			<section>
 				<h4>People on the chat</h4>
 				<ul id="list">
 				</ul>
@@ -53,6 +58,16 @@
 					socket.on("connect", () => {
 						const user = "<%= user %>";
 						socket.emit("join", user);
+					});
+
+					socket.on("updateChannels", (allChannels) => {
+						const channels = document.getElementById("allChannels");
+						channels.innerHTML = "";
+						allChannels.forEach((channel) => {
+							const li = document.createElement("li");
+							li.textContent = channel;
+							channels.appendChild(li);
+						});
 					});
 
 					socket.on("updateUsers", (users) => {
