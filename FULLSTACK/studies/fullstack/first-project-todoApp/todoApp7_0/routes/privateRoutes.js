@@ -7,6 +7,10 @@ const usersModel = require(path.join(__dirname, "../models/usersModel.js"));
 const { validatorMiddleware } = require(path.join(__dirname, "../middlewares/validatorMiddleware.js"));
 const { uploadMiddleware } = require(path.join(__dirname, "../middlewares/uploadMiddleware.js"));
 
+// Channels
+
+router.get("/channels", usersControllers.getChannelsPage);
+
 //GET 2fa
 
 router.post("/verify2faDirect", usersControllers.verify2faDirect);

@@ -10,6 +10,20 @@ const qrcode = require("qrcode");
 
 // Login
 
+exports.getChannelsPage = async (req, res) => {
+	try {
+		const token = req.cookies.token;
+		if (!token)
+			throw new Error("NO_AUTH");
+		const decoded = jwt.verify(token, process.env.JWT_SECRET);
+		const user = decoded.user;
+
+		return res.render("channels", { user } );
+	} catch {
+		return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
+	}
+};
+
 exports.getCaptcha = async (req, res) => {
 	// size -> define the quantity of characters you want
 	// noise -> add random lines and curves to difficult the automatic reading
@@ -374,11 +388,11 @@ exports.login = async (req, res) => {
 
 	try {
 		const { email, password, captchaInput } = req.body;
-		let message = null;
+		let message = [];
 		let success = [];
 
 		if (!req.session || captchaInput !== req.session.captcha) {
-			message = "Invalid captcha answer";
+			message.push("Invalid captcha answer");
 			return res.render("loginPage", { message, success });
 		};
 	

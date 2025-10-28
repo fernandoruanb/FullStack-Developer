@@ -7,6 +7,31 @@ const bcrypt = require("bcrypt");
 const { getDB } = require(path.join(__dirname, "../config/dbConnection.js"));
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
+exports.getAllChannelsMessages = async () => {
+	const db = getDB();
+	if (!db)
+		throw new Error("DATABASE_NOT_FOUND");
+	const [ rows ] = await db.query("SELECT content FROM channels WHERE receiver_id IS NULL");
+	const strings = [];
+	if (rows.length !== 0) {
+		for (const row of rows)
+			strings.push(row.content);
+	}
+	return (strings);
+};
+
+exports.storeMessages = async (user_id, message) => {
+	if (!message)
+		throw new Error("MISSING_INPUT");
+	if (typeof message !== "string")
+		throw new Error("INVALID_INPUT");
+	const db = getDB();
+	if (!db)
+		throw new Error("DATABASE_NOT_FOUND");
+	await db.query("INSERT INTO channels (content, sender_id) VALUES (?, ?)", [ message, user_id ]);
+	return (true);
+};
+
 exports.uploadAvatar = async (user_id, avatarPath) => {
 	if (!user_id || !avatarPath)
 		throw new Error("MISSING_INPUT");

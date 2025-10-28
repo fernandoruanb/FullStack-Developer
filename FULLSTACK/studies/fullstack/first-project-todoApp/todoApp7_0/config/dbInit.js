@@ -51,7 +51,7 @@ async function initDatabase() {
 			id INT AUTO_INCREMENT PRIMARY KEY,
 			content TEXT NOT NULL,
 			sender_id INT NOT NULL,
-			receiver_id INT NOT NULL,
+			receiver_id INT NULL DEFAULT NULL,
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 			);
