@@ -20,6 +20,7 @@ module.exports = (io) => {
 	})();
 
 	io.on("connection", (socket) => {
+		socket.currentChannel = null;
 		socket.on("join", (user) => {
 			const name = user?.trim();
 			users.set(socket.id, name);
@@ -31,22 +32,46 @@ module.exports = (io) => {
 			io.emit("updateChannels", allChannels);
 		});
 
+		socket.on("createChannel", async (roomName) => {
+			const room = roomName?.trim();
+			if (!room) return ;
+			allChannels.push(room);
+			io.emit("updateChannels", allChannels);
+		});
+
+		socket.on("deleteChannel", async (roomName) => {
+			const room = roomName?.trim();
+			if (!room) return ;
+			allChannels = allChannels.filter(channel => channel != roomName);
+			io.emit("updateChannels", allChannels);
+		});
+
 		socket.on("joinChannel", async ({ user, roomName }) => {
 			const room = roomName?.trim();
 			if (!room) return ;
+                        let user_id = await usersModel.getUsersId(user);
+			if (socket.currentChannel === room) {
+				socket.emit("leaveChannel", { user: user, roomName: room });
+				socket.leave(room);
+
+                        	const powered = `system: ${user} left ${room} channel`;
+                        	await usersModel.storeMessages(user_id, powered);
+                        	messages.push(powered);
+
+                        	io.emit("sendMessage", messages);
+                        	io.to(room).emit("system", `${user} left ${room}`);
+				return ;
+			}
 			socket.join(room);
 			console.log(`${user} joined to ${room}`);
+			socket.currentChannel = room;
+			console.log(socket.currentChannel);
+			const powered = `system: ${user} joined ${room} channel`;
+			await usersModel.storeMessages(user_id, powered);
+			messages.push(powered);
 
+			io.emit("sendMessage", messages);
 			io.to(room).emit("system", `${user} arrived to ${room}`);
-		});
-
-		socket.on("leaveChannel", async ({ user, roomName }) => {
-			const room = roomName?.trim();
-			if (!room) return ;
-			socket.leave(room);
-			console.log(`${user} left ${room}`);
-
-			io.to(room).emit("system", `${user} left ${room}`);
 		});
 
 		socket.on("sendMessage", async (user, message) => {
