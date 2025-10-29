@@ -7,6 +7,18 @@ const usersModel = require(path.join(__dirname, "../models/usersModel.js"));
 const { validatorMiddleware } = require(path.join(__dirname, "../middlewares/validatorMiddleware.js"));
 const { uploadMiddleware } = require(path.join(__dirname, "../middlewares/uploadMiddleware.js"));
 
+// Username
+
+router.get("/changeUsername", usersControllers.getChangeUsernamePage);
+
+router.post("/changeUsername", usersControllers.postChangeUsername);
+
+// Password
+
+router.get("/changePassword", usersControllers.getChangePasswordPage);
+
+router.post("/changePassword", usersControllers.postChangePassword);
+
 // Channels
 
 router.get("/channels", usersControllers.getChannelsPage);

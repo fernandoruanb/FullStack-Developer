@@ -3,6 +3,7 @@ const { validationResult, body } = require("express-validator");
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/;
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const usernameRegex=/^[a-zA-Z0-9._-]+$/; 
+const jwt = require("jsonwebtoken");
 
 const { checkUsernameSafety } = require(path.join(__dirname, "../utils/apiCheckUsername.js"));
 
@@ -100,6 +101,27 @@ exports.validateRequest = (req, res, next) => {
 			message = "Email/Password incorrect";
 			return res.render("loginPage", { message, success }); // the second needs to be an object
 		}
+		else if (currentPath === "/changePassword") {
+			try {
+				const token = req.cookies.token;
+				const decoded = jwt.verify(token, process.env.JWT_SECRET);
+				const user = decoded.user;
+				return res.render("changePassword", { message, success, user });
+			} catch (err) {
+				return res.redirect("changePassword");
+			}
+		}
+		else if (currentPath === "/changeUsername") {
+			try {
+				const token = req.cookies.token;
+				const decoded = jwt.verify(token, process.env.JWT_SECRET);
+				const user = decoded.user;
+				return res.render("changeUsername", { message, success, user });
+			} catch (err) {
+				return res.redirect("changeUsername");
+			}
+		}
+
 		return res.status(400).json({ errors: errors.array() });
 	}
 	next();

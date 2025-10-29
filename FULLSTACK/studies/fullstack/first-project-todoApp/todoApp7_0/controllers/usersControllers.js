@@ -8,6 +8,113 @@ const svgCaptcha = require("svg-captcha");
 const speakeasy = require("speakeasy");
 const qrcode = require("qrcode");
 
+exports.postChangeUsername = async (req, res) => {
+        if (!req.body || !req.body.username)
+                return res.status(400).json({ error: "MISSING_INPUT" });
+
+        let success = null;
+        let message = [];
+        let user_id = null;
+        let user = null;
+	let email = null;
+
+        try {
+                const { username } = req.body;
+                const token = req.cookies.token;
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                user_id = decoded.user_id;
+                user = decoded.user;
+		email = decoded.email;
+
+                await usersModel.updateUsername(username, user_id);
+		user = username;
+
+		const payload = { user, user_id, email };
+		const newToken = jwt.sign(payload, process.env.JWT_SECRET, {
+                        expiresIn: process.env.JWT_EXPIRES_IN || "1h"
+                });
+
+                const safeCookie = process.env.NODE_ENV === "production";
+
+                // Lax === relaxed in English, strict for more security 
+                // Extra security, localhost needs secure false or the cookie will not send to browser
+                // httpOnly protects your cookies to avoid accessing from browser javascript, avoiding XSS attacks
+
+                res.cookie("token", newToken, {
+                        httpOnly: true,
+                        secure: safeCookie,
+                        sameSite: "lax",
+                        maxAge: 60 * 60 * 1000 // 1h in miliseconds
+                });
+
+                success = "Username updated successfully";
+                return res.render("changeUsername", { message, success, user } );
+        } catch (err) {
+                message.push(err.message);
+                return res.render("changeUsername", { message, success, user } );
+        }
+};
+
+exports.postChangePassword = async (req, res) => {
+	if (!req.body || !req.body.password || !req.body.confirmPassword)
+		return res.status(400).json({ error: "MISSING_INPUT" });
+
+	let success = null;
+	let message = [];
+	let user_id = null;
+	let user = null;
+
+	try {
+		const { password, confirmPassword } = req.body;
+		const token = req.cookies.token;
+		const decoded = jwt.verify(token, process.env.JWT_SECRET);
+		user_id = decoded.user_id;
+		user = decoded.user;
+
+		await usersModel.updatePassword(password, user_id);
+
+		success = "Password updated successfully";
+		return res.render("changePassword", { message, success, user } );
+	} catch (err) {
+		message.push(err.message);
+		return res.render("changePassword", { message, success, user } );
+	}
+};
+
+exports.getChangeUsernamePage = async (req, res) => {
+        let message = [];
+        let success = null;
+        try {
+                const token = req.cookies.token;
+                if (!token)
+                        throw new Error("NO_AUTH");
+
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                const user = decoded.user;
+
+                res.render("changeUsername", { message, success, user } );
+        } catch (err) {
+                res.status(500).json({ error: err.message });
+        }
+};
+
+exports.getChangePasswordPage = async (req, res) => {
+	let message = [];
+	let success = null;
+	try {
+		const token = req.cookies.token;
+		if (!token)
+			throw new Error("NO_AUTH");
+
+		const decoded = jwt.verify(token, process.env.JWT_SECRET);
+		const user = decoded.user;
+
+		res.render("changePassword", { message, success, user } );
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+};
+
 // Login
 
 exports.getChannelsPage = async (req, res) => {

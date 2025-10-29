@@ -214,6 +214,41 @@ exports.get2fa = async (user_id) => {
 	return ({ twoFactorEnable, twoFactorSecret });
 };
 
+exports.updateUsername = async (username, user_id) => {
+        if (!user_id || !username)
+                throw new Error("MISSING_INPUT");
+        if (typeof user_id !== "number" || typeof username !== "string")
+                throw new Error("INVALID_INPUT");
+        const db = getDB();
+        if (!db)
+                throw new Error("DATABASE_NOT_FOUND");
+        const [ rows ] = await db.query("SELECT username FROM users WHERE username = ?", [ username ]);
+        if (rows.length !== 0)
+                throw new Error("That new username is not disponible");
+        await db.query("UPDATE users SET username = ? WHERE id = ?", [ username, user_id ]);
+        return (true);
+};
+
+exports.updatePassword = async (password, user_id) => {
+	if (!user_id)
+		throw new Error("MISSING_INPUT");
+	if (typeof user_id !== "number")
+		throw new Error("INVALID_INPUT");
+	const db = getDB();
+	if (!db)
+		throw new Error("DATABASE_NOT_FOUND");
+	const [ rows ] = await db.query("SELECT password FROM users WHERE id = ?", [ user_id ]);
+	if (rows.length === 0)
+		throw new Error("NOT_FOUND_USER");
+	const oldPassword = rows[0].password;
+	const match = await bcrypt.compare(password, oldPassword);
+	if (match)
+		throw new Error("SAME_PASSWORD");
+	const newPassword = await bcrypt.hash(password, 10);
+	await db.query("UPDATE users SET password = ? WHERE id = ?", [ newPassword, user_id ]);
+	return (true);
+};
+
 exports.registerUser = async (username, password, email, enable2fa) => {
 	if (!username || !password || !email)
 		throw new Error("MISSING_INPUT");

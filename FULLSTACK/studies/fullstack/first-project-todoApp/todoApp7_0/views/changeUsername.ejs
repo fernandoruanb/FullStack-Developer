@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="author" content="Fernando Ruan">
+		<title>Change Username</title>
+	</head>
+	<body>
+		<main>
+			<header>
+				<nav>
+					<a href="/getDashBoard">DashBoard</a>
+				</nav>
+			</header>
+			<section>
+				<h2>Change username</h2>
+				<p>You can change your username here <strong><%= user %></strong> :)</p>
+			</section>
+			<section>
+				<% if (success) { %>
+					<p style="color: green"> <%= success %> </p>
+				<% } %>
+				<% if (message && message.length > 0) { %>
+					<% message.forEach(mes => { %>
+						<p style="color: red"> <%= mes %> </p>
+					<% }) %>
+				<% } %>
+				<form action="/changeUsername" method="POST">
+					<label>Username:</label><br>
+					<input type="text" name="username" placeholder="Type the password here" required><br><br>
+					<button type="submit">Submit</button>
+				</form>
+			</section>
+			<footer>
+				<h6>Keysoft sofwares</h6>
+			</footer>
+		</main>
+	</body>
+</html>
