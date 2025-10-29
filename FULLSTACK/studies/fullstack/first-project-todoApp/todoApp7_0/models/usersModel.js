@@ -7,15 +7,57 @@ const bcrypt = require("bcrypt");
 const { getDB } = require(path.join(__dirname, "../config/dbConnection.js"));
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-exports.getAllChannelsMessages = async () => {
+exports.storeNewChat = async (chat) => {
+	if (!chat)
+		throw new Error("MISSING_INPUT");
+	if (typeof chat !== "string")
+		throw new Error("INVALID_INPUT");
 	const db = getDB();
 	if (!db)
 		throw new Error("DATABASE_NOT_FOUND");
-	const [ rows ] = await db.query("SELECT content FROM channels WHERE receiver_id IS NULL");
+
+	await db.query("INSERT INTO chats (name) VALUES (?)", [ chat ]);
+};
+
+exports.getAllChats = async () => {
+	const db = getDB();
+	if (!db)
+		throw new Error("DATABASE_NOT_FOUND");
+	const [ rows ] = await db.query("SELECT name FROM chats");
+	const chats = [];
+	if (rows.length > 0) {
+		for (const ch of rows)
+			chats.push(ch.name);
+	}
+	return (chats);
+};
+
+exports.getUsersUsername = async (user_id) => {
+        if (!user_id)
+                throw new Error("MISSING_INPUT");
+        const db = getDB();
+        if (!db)
+                throw new Error("INVALID_INPUT");
+        const [ rows ] = await db.query("SELECT username FROM users WHERE id = ? limit 1", [ user_id ]);
+        if (rows.length === 0)
+                throw new Error("NOT_FOUND_USER");
+        return (rows[0].username);
+};
+
+exports.getAllChannelsMessages = async () => {
+	console.log("Entrei aqui");
+	const db = getDB();
+	if (!db)
+		throw new Error("DATABASE_NOT_FOUND");
+	const [ rows ] = await db.query("SELECT content, sender_id FROM channels WHERE receiver_id IS NULL");
 	const strings = [];
 	if (rows.length !== 0) {
-		for (const row of rows)
-			strings.push(row.content);
+		for (const row of rows) {
+			let [ rows ] = await db.query("SELECT username FROM users WHERE id = ?", [ row.sender_id ]);
+			let user = rows[0].username;
+			let fullMessage = `${user}: ${row.content}`;
+			strings.push(fullMessage);
+		}
 	}
 	return (strings);
 };

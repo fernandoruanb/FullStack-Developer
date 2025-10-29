@@ -57,6 +57,15 @@ async function initDatabase() {
 			);
 		`);
 
+		await connection.query(`
+			CREATE TABLE IF NOT EXISTS chats (
+			id INT AUTO_INCREMENT PRIMARY KEY,
+			name TEXT NOT NULL,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+			);
+		`);
+
 	} catch (err) {
 		console.error("Error initializing the database: ", err);
 		process.exit(1);

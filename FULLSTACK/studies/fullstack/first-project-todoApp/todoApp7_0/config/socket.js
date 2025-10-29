@@ -8,16 +8,21 @@ module.exports = (io) => {
 
 	const users = new Map();
 	let messages = [];
-	let allChannels = ["General"];
+	let allChannels = [];
 
-	(async () => {
+	async function reloadEverything () {
 		try {
 			messages = await usersModel.getAllChannelsMessages();
+			allChannels = await usersModel.getAllChats();
 			console.log("got all messages");
 		} catch (err) {
 			console.error(err);
 		}
-	})();
+	};
+
+	(async () => {
+		await reloadEverything();
+	});
 
 	io.on("connection", (socket) => {
 		socket.currentChannel = null;
@@ -35,7 +40,13 @@ module.exports = (io) => {
 		socket.on("createChannel", async (roomName) => {
 			const room = roomName?.trim();
 			if (!room) return ;
-			allChannels.push(room);
+			try {
+				await usersModel.storeNewChat(room);
+			} catch (err) {
+				console.error(err.message);
+				return ;
+			}
+
 			io.emit("updateChannels", allChannels);
 		});
 
@@ -43,6 +54,7 @@ module.exports = (io) => {
 			const room = roomName?.trim();
 			if (!room) return ;
 			allChannels = allChannels.filter(channel => channel != roomName);
+			io.emit("sendMessage", messages);
 			io.emit("updateChannels", allChannels);
 		});
 
@@ -55,7 +67,6 @@ module.exports = (io) => {
 				socket.leave(room);
 
                         	const powered = `system: ${user} left ${room} channel`;
-                        	await usersModel.storeMessages(user_id, powered);
                         	messages.push(powered);
 
                         	io.emit("sendMessage", messages);
@@ -71,6 +82,7 @@ module.exports = (io) => {
 			messages.push(powered);
 
 			io.emit("sendMessage", messages);
+			io.emit("updateChannels", allChannels);
 			io.to(room).emit("system", `${user} arrived to ${room}`);
 		});
 
@@ -81,11 +93,14 @@ module.exports = (io) => {
 			const powered = `${name}: ${message}`;
 			try {
 				if (message) {
-					messages.push(powered);
+					//messages.push(powered);
 					//io.to(roomName || "General").emit("sendMessage", messages);
-					io.emit("sendMessage", messages);
 					const user_id = await usersModel.getUsersId(user);
-					await usersModel.storeMessages(user_id, powered);
+					const finalMessage = message?.trim();
+					await usersModel.storeMessages(user_id, finalMessage);
+					await reloadEverything();
+					io.emit("sendMessage", messages);
+					io.emit("updateChannels", allChannels);
 				}
 			} catch (err) {
 				console.error(err.message);
