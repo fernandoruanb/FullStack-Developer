@@ -8,6 +8,19 @@ const svgCaptcha = require("svg-captcha");
 const speakeasy = require("speakeasy");
 const qrcode = require("qrcode");
 
+exports.showUserProfile = async (req, res) => {
+	try {
+		const token = req.cookies.token;
+		const decoded = jwt.verify(token, process.env.JWT_SECRET);
+		const user_id = decoded.user_id;
+		const user = decoded.user;
+		const avatar = await usersModel.getAvatar(user_id);
+		res.render("profile", { user, avatar });
+	} catch (err) {
+		return res.status(500).json({ error: err.message });	
+	}
+};
+
 exports.postChangeUsername = async (req, res) => {
         if (!req.body || !req.body.username)
                 return res.status(400).json({ error: "MISSING_INPUT" });

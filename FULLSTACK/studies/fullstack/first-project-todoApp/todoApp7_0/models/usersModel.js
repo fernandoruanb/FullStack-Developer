@@ -7,6 +7,19 @@ const bcrypt = require("bcrypt");
 const { getDB } = require(path.join(__dirname, "../config/dbConnection.js"));
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
+exports.getAvatar = async (user_id) => {
+	if (!user_id)
+		throw new Error("MISSING_INPUT");
+	const db = getDB();
+	if (!db)
+		throw new Error("DATABASE_NOT_FOUND");
+	const [ rows ] = await db.query("SELECT avatar FROM users WHERE id = ?", [ user_id ]);
+	if (rows.length === 0)
+		throw new Error("NOT_FOUND_USER");
+	const avatar = rows[0].avatar;
+	return (avatar);
+}
+
 exports.storeNewChat = async (chat) => {
 	if (!chat)
 		throw new Error("MISSING_INPUT");

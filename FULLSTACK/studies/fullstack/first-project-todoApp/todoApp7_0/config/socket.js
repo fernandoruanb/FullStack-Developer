@@ -53,7 +53,7 @@ module.exports = (io) => {
 
 		socket.on("createChannel", async (roomName) => {
 			const room = roomName?.trim();
-			if (!room) return ;
+			if (!room || allChannels.includes(room)) return ;
 			try {
 				await usersModel.storeNewChat(room);
 			} catch (err) {
