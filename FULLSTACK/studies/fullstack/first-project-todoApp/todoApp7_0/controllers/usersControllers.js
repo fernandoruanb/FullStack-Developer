@@ -17,6 +17,7 @@ exports.postChangeUsername = async (req, res) => {
         let user_id = null;
         let user = null;
 	let email = null;
+	const io = req.app.get("io");
 
         try {
                 const { username } = req.body;
@@ -48,6 +49,7 @@ exports.postChangeUsername = async (req, res) => {
                 });
 
                 success = "Username updated successfully";
+		io.emit("updateUsername");
                 return res.render("changeUsername", { message, success, user } );
         } catch (err) {
                 message.push(err.message);

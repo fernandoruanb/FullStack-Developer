@@ -25,6 +25,8 @@ const PORT = process.env.PORT || 5000;
 		// Register each event to handle with socket
 		registerServer(io);
 
+		app.set("io", io);
+
 		// Starting to listen from the specified PORT
 
 		server.listen(PORT, () => {

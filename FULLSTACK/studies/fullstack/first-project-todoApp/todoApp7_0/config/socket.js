@@ -31,11 +31,25 @@ module.exports = (io) => {
 			users.set(socket.id, name);
 			//socket.join("General");
 
+			(async () => {
+				await reloadEverything();
+			});
 			io.emit("updateUsers", Array.from(users.values()));
 			io.emit("serverMessage", `${name}: arrived to that room`);
 			io.emit("sendMessage", messages);
 			io.emit("updateChannels", allChannels);
 		});
+
+		(async () => {
+			try {
+				await reloadEverything();
+				io.emit("updateUsers", Array.from(users.values()));
+				io.emit("sendMessage", messages);
+				io.emit("updateChannels", allChannels);
+			} catch (err) {
+				console.error("Error to restart everything:", err.message);
+			}
+		})();
 
 		socket.on("createChannel", async (roomName) => {
 			const room = roomName?.trim();
@@ -47,6 +61,7 @@ module.exports = (io) => {
 				return ;
 			}
 
+			await reloadEverything();
 			io.emit("updateChannels", allChannels);
 		});
 
@@ -54,6 +69,7 @@ module.exports = (io) => {
 			const room = roomName?.trim();
 			if (!room) return ;
 			allChannels = allChannels.filter(channel => channel != roomName);
+			await reloadEverything();
 			io.emit("sendMessage", messages);
 			io.emit("updateChannels", allChannels);
 		});
@@ -117,12 +133,14 @@ module.exports = (io) => {
 			allChannels = allChannels.filter(channels => channels !== nameChannel);
 		});
 
-		socket.on("disconnect", () => {
+		socket.on("disconnect", async () => {
 			const name = users.get(socket.id);
 			users.delete(socket.id);
 
+			await reloadEverything();
 			io.emit("updateUsers", Array.from(users.values()));
 			io.emit("serverMessage", `${name}: left from the room`);
 		});
 	});
 };
+
