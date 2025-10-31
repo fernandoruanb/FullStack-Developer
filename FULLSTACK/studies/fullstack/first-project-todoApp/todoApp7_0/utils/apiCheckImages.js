@@ -8,7 +8,7 @@ exports.checkImageSafety = async (localPath) => {
 	try {
 		const form = new FormData();
 		form.append("media", fs.createReadStream(localPath));
-		form.append("models", "nudity-2.1,wad,offensive,violence,type");
+		form.append("models", "nudity-2.1,wad,offensive,gore-2.0,violence,type");
 		form.append("api_user", process.env.SIGHTENGINE_USER);
 		form.append("api_secret", process.env.SIGHTENGINE_SECRET);
 
@@ -37,9 +37,15 @@ exports.checkImageSafety = async (localPath) => {
   			data.nudity?.suggestive > 0.5 ||
   			data.nudity?.mildly_suggestive > 0.6 ||
   			data.violence?.prob > 0.3 ||
-  			data.weapon > 0.3 ||
+  			data.weapon > 0.4 ||
   			data.alcohol > 0.3 ||
-  			data.drugs > 0.3;
+  			data.drugs > 0.3 ||
+			data.gore?.prob > 0.3 ||
+			data.gore?.classes?.very_bloody > 0.2 ||
+  			data.gore?.classes?.serious_injury > 0.2 ||
+  			data.gore?.classes?.corpse > 0.2 ||
+  			data.gore?.classes?.skull > 0.2 ||
+  			data.gore?.type?.animated > 0.5;
 
 		//console.log("nsfw:", nsfw, "data:", data);
 		//console.log("nsfw:", nsfw); // check if pass or not pass
