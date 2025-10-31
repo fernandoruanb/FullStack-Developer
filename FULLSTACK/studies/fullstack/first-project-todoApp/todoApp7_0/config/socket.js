@@ -81,6 +81,7 @@ module.exports = (io) => {
 			if (socket.currentChannel === room) {
 				socket.emit("leaveChannel", { user: user, roomName: room });
 				socket.leave(room);
+				socket.currentChannel = null;
 
                         	const powered = `system: ${user} left ${room} channel`;
                         	messages.push(powered);
