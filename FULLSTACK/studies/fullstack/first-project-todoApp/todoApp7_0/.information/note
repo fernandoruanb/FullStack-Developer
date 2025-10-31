@@ -78,4 +78,6 @@ to 2fa you need speakeasy, qrcode
 
 DESCRIBE table -> show details about that target table
 
+npm install nodemailer -> handle e-mails
 
+config/email.js

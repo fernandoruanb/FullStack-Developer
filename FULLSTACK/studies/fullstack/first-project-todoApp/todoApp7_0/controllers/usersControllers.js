@@ -7,6 +7,7 @@ const { checkImageSafety } = require(path.join(__dirname, "../utils/apiCheckImag
 const svgCaptcha = require("svg-captcha");
 const speakeasy = require("speakeasy");
 const qrcode = require("qrcode");
+const { sendEmail } = require(path.join(__dirname, "../utils/sendEmail.js"));
 
 exports.deleteEverything = async (req, res) => {
 	try {
