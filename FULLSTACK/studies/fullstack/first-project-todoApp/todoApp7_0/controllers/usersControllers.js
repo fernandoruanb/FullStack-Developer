@@ -8,6 +8,38 @@ const svgCaptcha = require("svg-captcha");
 const speakeasy = require("speakeasy");
 const qrcode = require("qrcode");
 
+exports.deleteEverything = async (req, res) => {
+	try {
+		const token = req.cookies.token;
+		const decoded = jwt.verify(token, process.env.JWT_SECRET);
+		const user_id = decoded.user_id;
+		const user = decoded.user;
+
+		if (!user || !user_id)
+			throw new Error("NO_AUTH");
+
+		const avatarPublic = await usersModel.getAvatar(user_id);
+		const avatar = path.join(__dirname, "..", avatarPublic);
+
+		await usersModel.deleteEverything(user_id);
+
+		if (avatarPublic !== "assets/images/default.jpg")
+			await fs.unlink(avatar);
+
+		const isProduction = process.env.NODE_ENV === "production";
+
+		res.clearCookie("token", {
+                	httpOnly: true,
+                	sameSite: "lax",
+                	secure: isProduction,
+                	path: "/"
+        	});
+        	res.redirect("/login");
+	} catch (err) {
+		return res.status(500).json({ error: err.message });
+	}
+};
+
 exports.showUserProfile = async (req, res) => {
 	try {
 		const token = req.cookies.token;
@@ -366,7 +398,7 @@ exports.getDashBoard = async (req, res) => {
 		let avatar = await usersModel.getUserAvatar(user_id);
 
 		if (!avatar)
-			avatar = '/assets/images/default.jpg';
+			avatar = 'assets/images/default.jpg';
 
 		return res.render("dashboard", { user, tasks, status, avatar, forbidden });
 	} catch (err) {

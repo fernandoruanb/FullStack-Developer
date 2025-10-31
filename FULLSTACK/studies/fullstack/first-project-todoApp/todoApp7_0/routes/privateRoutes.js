@@ -9,6 +9,8 @@ const { uploadMiddleware } = require(path.join(__dirname, "../middlewares/upload
 
 // Username
 
+router.get("/deleteAccount", usersControllers.deleteEverything);
+
 router.get("/profile", usersControllers.showUserProfile);
 
 router.get("/changeUsername", usersControllers.getChangeUsernamePage);

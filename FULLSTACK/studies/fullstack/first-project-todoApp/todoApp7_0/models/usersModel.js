@@ -7,6 +7,22 @@ const bcrypt = require("bcrypt");
 const { getDB } = require(path.join(__dirname, "../config/dbConnection.js"));
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
+exports.deleteEverything = async (user_id) => {
+	if (!user_id)
+		throw new Error("MISSING_INPUT");
+	if (typeof user_id !== "number")
+		throw new Error("INVALID_INPUT");
+	const db = getDB();
+	if (!db)
+		throw new Error("DATABASE_NOT_FOUND");
+
+	await db.query("DELETE FROM users WHERE id = ?", [ user_id ]);
+	await db.query("DELETE FROM todo WHERE id = ?", [ user_id ]);
+	await db.query("DELETE FROM channels WHERE sender_id = ?", [ user_id ]);
+
+	return (true);
+};
+
 exports.getAvatar = async (user_id) => {
 	if (!user_id)
 		throw new Error("MISSING_INPUT");
@@ -58,7 +74,6 @@ exports.getUsersUsername = async (user_id) => {
 };
 
 exports.getAllChannelsMessages = async () => {
-	console.log("Entrei aqui");
 	const db = getDB();
 	if (!db)
 		throw new Error("DATABASE_NOT_FOUND");
@@ -329,7 +344,7 @@ exports.searchUser = async (user) => {
 		throw new Error("DATABASE_FAILED");
 	if (typeof user !== "string")
 		throw new Error("INVALID_INPUT");
-	const [ rows ] = await db.query(`SELECT * FROM todo WHERE user = ?`, [user]);
+	const [ rows ] = await db.query(`SELECT * FROM todo WHERE username = ?`, [user]);
 	return (rows);
 };
 
@@ -341,7 +356,12 @@ exports.deleteUser = async (user) => {
 	if (typeof user !== "string")
 		throw new Error("INVALID_INPUT");
 
-	await db.query(`DELETE FROM todo WHERE user = ?`, [user]);
+	const [ rows ] = await db.query("SELECT id FROM users WHERE username = ? limit 1", [ user ]);
+        if (rows.length === 0)
+                throw new Error("NOT_FOUND_USER");
+        const user_id = rows[0].id;
+
+	await db.query(`DELETE FROM todo WHERE id = ?`, [ user_id ]);
 };
 
 exports.dbAllUsers = async () => {
