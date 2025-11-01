@@ -9,6 +9,70 @@ const speakeasy = require("speakeasy");
 const qrcode = require("qrcode");
 const { sendEmail } = require(path.join(__dirname, "../utils/sendEmail.js"));
 
+exports.verifyConfirmationCode = async (req, res) => {
+	let message = [];
+	let success = [];
+	try {
+		if (!req.body || !req.body.code)
+			throw new Error("MISSING_INPUT");
+		const { code } = req.body;
+		if (typeof code !== "string")
+			throw new Error("INVALID_INPUT");
+		const token = req.cookies.token;
+		const decoded = jwt.verify(token, process.env.JWT_SECRET);
+		const user_id = decoded.user_id;
+		if (code === req.session.captcha) {
+			await usersModel.confirmTheEmail(user_id);
+			success.push("E-mail confirmed successfully");
+			return res.render("loginPage", { message, success });
+		}
+		else {
+			message.push("Incorrect e-mail validation, try again");
+			return res.render("loginPage", { message, success });
+		}
+	} catch (err) {
+		console.error("Something wrong happened when we were checking the confirmation code");
+		return res.status(500).json({ error: err.message });
+	}
+};
+
+exports.sendConfirmationEmail = async (req, res) => {
+	try {
+		let message = [];
+		let success = [];
+		const token = req.cookies.token;
+		const decoded = jwt.verify(token, process.env.JWT_SECRET);
+		const email = decoded.email;
+		const user = decoded.user;
+
+		const captcha = svgCaptcha.create({
+                	size: 8,
+                	noise: 4,
+                	color: true,
+                	background: "#f4f4f4"
+        	});
+
+		if (!email || !user)
+			throw new Error("MISSING_INPUT");
+
+       	 	req.session.captcha = captcha.text;
+		req.session.captchaExpires = Date.now() + 5 * 60 * 1000; // 5 minutes
+
+		const subject = "Confirmation of e-mail";
+		const content = captcha.text;
+		const webPage = `
+			<h2>TodoApp Confirmation E-mail</h2>
+			<p>Hello, your code is ${content}</p>
+			<p>Please, inform it to confirm this account</p>
+		`;
+		await sendEmail(email, subject, webPage);
+		return res.render("getConfirmationCode", { user });
+	} catch (err) {
+		console.error("Error sending the confirmation email");
+		return res.status(500).json({ error: err.message });
+	}
+};
+
 exports.deleteEverything = async (req, res) => {
 	try {
 		const token = req.cookies.token;
@@ -190,6 +254,8 @@ exports.getCaptcha = async (req, res) => {
 	});
 	// Save the text in request session
 	req.session.captcha = captcha.text;
+	req.session.captchaExpires = Date.now() + 5 * 60 * 1000; // 5 minutes
+
 	// Specif the svg image
 	res.set("Content-Type", "image/svg+xml");
 	res.status(200).send(captcha.data);
@@ -551,7 +617,7 @@ exports.login = async (req, res) => {
 			message.push("Invalid captcha answer");
 			return res.render("loginPage", { message, success });
 		};
-	
+
 		await usersModel.tryLogin(email, password);
 
 		const user = await usersModel.getLoginUsername(email);
@@ -582,6 +648,10 @@ exports.login = async (req, res) => {
 			sameSite: "lax", 
 			maxAge: 60 * 60 * 1000 // 1h in miliseconds
 		});
+
+		const isConfirmedEmail = await usersModel.getIsValidEmail(user_id);
+		if (!isConfirmedEmail)
+			return res.redirect("/confirmEmail");
 
 		if (twoFactorEnable) {
 			if (twoFactorSecret === null) {

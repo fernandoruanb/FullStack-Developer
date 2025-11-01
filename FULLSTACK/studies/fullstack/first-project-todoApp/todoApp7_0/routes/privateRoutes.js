@@ -7,6 +7,12 @@ const usersModel = require(path.join(__dirname, "../models/usersModel.js"));
 const { validatorMiddleware } = require(path.join(__dirname, "../middlewares/validatorMiddleware.js"));
 const { uploadMiddleware } = require(path.join(__dirname, "../middlewares/uploadMiddleware.js"));
 
+// Confirm E-mail
+
+router.get("/confirmEmail", usersControllers.sendConfirmationEmail);
+
+router.post("/confirmEmail", usersControllers.verifyConfirmationCode);
+
 // Username
 
 router.get("/deleteAccount", usersControllers.deleteEverything);

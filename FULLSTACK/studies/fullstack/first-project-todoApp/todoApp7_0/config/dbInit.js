@@ -23,12 +23,15 @@ async function initDatabase() {
 		  	todo_id INT AUTO_INCREMENT PRIMARY KEY,
 			id INT DEFAULT NULL,
 		  	task VARCHAR(255) NOT NULL,
+			tasks_finished INT DEFAULT 0,
+			tasks_progressing INT DEFAULT 0,
 		  	status ENUM('pending', 'done') DEFAULT 'pending',
 		  	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 	     	)
 	 `);
 		// Authentication profile
+		// TEXT NULL and never TEXT DEFAULT NULL
 
 		await connection.query(`
 			CREATE TABLE IF NOT EXISTS users (
@@ -37,6 +40,9 @@ async function initDatabase() {
 			email VARCHAR(255) UNIQUE NOT NULL,
 			password VARCHAR(255) NOT NULL,
 			avatar VARCHAR(255) DEFAULT 'assets/images/default.jpg',
+			isValidEmail BOOLEAN DEFAULT FALSE,
+			description TEXT NULL,
+			friends INT DEFAULT 0,
 			twoFactorEnable BOOLEAN DEFAULT FALSE,
 			twoFactorSecret VARCHAR(100) DEFAULT NULL,
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

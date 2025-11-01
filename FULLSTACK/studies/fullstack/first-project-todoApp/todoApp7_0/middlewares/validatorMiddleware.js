@@ -88,8 +88,8 @@ exports.validatorMiddleware = [
 
 exports.validateRequest = (req, res, next) => {
 	const errors = validationResult(req);
-	let success = null;
-	let message = null;
+	let success = [];
+	let message = [];
 
 	const currentPath = req.path; // the route
 
@@ -98,7 +98,7 @@ exports.validateRequest = (req, res, next) => {
 		if (currentPath === "/register")
 			return res.render("register", { message });
 		else if (currentPath === "/login") {
-			message = "Email/Password incorrect";
+			message.push("Email/Password incorrect");
 			return res.render("loginPage", { message, success }); // the second needs to be an object
 		}
 		else if (currentPath === "/changePassword") {
@@ -106,6 +106,8 @@ exports.validateRequest = (req, res, next) => {
 				const token = req.cookies.token;
 				const decoded = jwt.verify(token, process.env.JWT_SECRET);
 				const user = decoded.user;
+				success = null;
+				message = ["Something wrong trying to change password"];
 				return res.render("changePassword", { message, success, user });
 			} catch (err) {
 				return res.redirect("changePassword");
@@ -116,6 +118,8 @@ exports.validateRequest = (req, res, next) => {
 				const token = req.cookies.token;
 				const decoded = jwt.verify(token, process.env.JWT_SECRET);
 				const user = decoded.user;
+				message = ["Something wrong trying changing username"];
+				success = null;
 				return res.render("changeUsername", { message, success, user });
 			} catch (err) {
 				return res.redirect("changeUsername");

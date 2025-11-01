@@ -81,3 +81,7 @@ DESCRIBE table -> show details about that target table
 npm install nodemailer -> handle e-mails
 
 config/email.js
+
+https://myaccount.google.com/apppasswords
+
+

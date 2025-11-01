@@ -7,6 +7,32 @@ const bcrypt = require("bcrypt");
 const { getDB } = require(path.join(__dirname, "../config/dbConnection.js"));
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
+exports.getIsValidEmail = async (user_id) => {
+	if (!user_id)
+                throw new Error("MISSING_INPUT");
+        if (typeof user_id !== "number")
+                throw new Error("INVALID_INPUT");
+        const db = getDB();
+        if (!db)
+                throw new Error("DATABASE_NOT_FOUND");
+	const [ rows ] = await db.query("SELECT isValidEmail FROM users WHERE id = ?", [ user_id ]);
+	if (rows.length === 0)
+		throw new Error("NOT_FOUND_USER");
+	return (Boolean(rows[0].isValidEmail));
+}
+
+exports.confirmTheEmail= async (user_id) => {
+	if (!user_id)
+		throw new Error("MISSING_INPUT");
+	if (typeof user_id !== "number")
+		throw new Error("INVALID_INPUT");
+	const db = getDB();
+	if (!db)
+		throw new Error("DATABASE_NOT_FOUND");
+	await db.query("UPDATE users SET isValidEmail = true WHERE id = ?", [ user_id ]);
+	return (true);
+};
+
 exports.deleteEverything = async (user_id) => {
 	if (!user_id)
 		throw new Error("MISSING_INPUT");
