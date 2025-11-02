@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="author" content="Fernando Ruan">
+		<title>Two authenticator Factor</title>
+	</head>
+	<body>
+		<main>
+			<header>
+				<a href="/login">Login</a>
+			</header>
+			<section>
+				<h1>Two authenticator factor</h1>
+				<p>Welcome <strong> <%= user %> </strong> let's go the next step</p>
+			</section>
+			<section>
+				<img src="<%= qrCodeDataURL %>" alt="qrcode">
+				<% if (message) { %>
+					<p style="color: red"> <%= message %> </p>
+				<% } %>
+				<form action="/verify2fa" method="POST">
+					<input type="hidden" name="qrCodeDataURL" value="<%= qrCodeDataURL %>">
+					<input type="text" name="code" placeholder="Type the code here" required><br><br>
+					<button type="submit">Submit</button>
+				</form>
+			</section>
+			<footer>
+				<h6>Keysoft softwares</h6>
+			</footer>
+		</main>
+	</body>
+</html>

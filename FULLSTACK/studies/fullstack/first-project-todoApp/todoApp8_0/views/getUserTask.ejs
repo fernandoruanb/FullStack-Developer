@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="author" content="Fernando Ruan">
+		<title>Update user task</title>
+	</head>
+	<body>
+		<main>
+			<header>
+				<a href="/getDashBoard">DashBoard</a>
+			</header>
+			<section>
+				<h2>Update Task</h2>
+				<p>Hello <%= user %> you are updating a task. Did you really finish it?</p>
+				<p>The task: <%= task %></p>
+			</section>
+			<section>
+				<form action="/updateUserTask" method="POST">
+					<label>New Task:</label><br>
+					<input type="text" name="newTask" placeholder="Type the update here" required><br><br>
+					<input type="hidden" name="oldTask" value="<%= task %>">
+					<button type="submit">Submit</button>
+				</form>
+			</section>
+			<footer>
+				<h6>Keysoft softwares</h6>
+			</footer>
+		</main>
+	</body>
+</html>
