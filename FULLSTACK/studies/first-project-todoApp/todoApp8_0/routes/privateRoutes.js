@@ -7,6 +7,12 @@ const usersModel = require(path.join(__dirname, "../models/usersModel.js"));
 const { validatorMiddleware } = require(path.join(__dirname, "../middlewares/validatorMiddleware.js"));
 const { uploadMiddleware } = require(path.join(__dirname, "../middlewares/uploadMiddleware.js"));
 
+// See all users
+
+router.get("/getAllUserList", usersControllers.getAllUsersList);
+
+router.get("/seeProfile", usersControllers.seePublicProfile);
+
 // Confirm E-mail
 
 router.get("/confirmEmail", usersControllers.sendConfirmationEmail);

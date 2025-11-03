@@ -897,6 +897,34 @@ exports.logout = (req, res) => {
 
 // Return the user searched
 
+exports.seePublicProfile = async (req, res) => {
+	try {
+		const { username } = req.query;
+		if (!username)
+			throw new Error("MISSING_INPUT");
+		if (typeof username !== "string")
+			throw new Error("INVALID_INPUT");
+		const user = await usersModel.getProfileUser(username);
+		if (!user)
+			throw new Error("NOT_FOUND_USER");
+		return res.render("publicProfile", { user } );
+	} catch (err) {
+		return res.status(500).json({ error: err.message });
+	}
+}
+
+exports.getAllUsersList = async (req, res) => {
+	try {
+		const users = await usersModel.allUsersList();
+		if (users.length === 0)
+			throw new Error("EMPTY_LIST");
+		return res.render("seeAllUsers", { users });
+	} catch (err) {
+		console.error("Error during showing all users list");
+		return res.status(500).json({ error: err.message });
+	}
+}
+
 exports.searchUser = async (req, res) => {
 	try {
 		if (!req.body || !req.body.user)

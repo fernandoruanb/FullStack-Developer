@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+        <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <meta name="author" content="Fernando Ruan">
+                <title>Profile</title>
+        </head>
+        <body>
+                <main>
+                        <header>
+                                <nav>
+                                        <a href="/getDashBoard">DashBoard</a>
+					<a href="/getAllUserList">Get all users list</a>
+					<a href="/searchUser">Search User</a>
+                                </nav>
+                        </header>
+                        <section>
+                                <h2>Profile of <%= user.username %> </h2>
+                        </section>
+                        <section>
+                                <img src="<%= user.avatar %>">
+                        </section>
+			<section>
+				<button>Send a friend request</button><br>
+				<button>Chat</button>
+				<p>Friends: <strong><%= user.friends %></strong> </p>
+				<% if (user.description) { %>
+					<p> Description: <%= user.description %> </p>
+				<% } else { %>
+					<p> Empty description </p>
+				<% } %>
+			</section>
+                        <footer>
+                                <h6>Keysoft softwares</h6>
+                        </footer>
+                </main>
+        </body>
+</html>
+

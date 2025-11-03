@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="author" content="Fernando Ruan">
+		<title>List all users</title>
+	</head>
+	<body>
+		<main>
+			<header>
+				<nav>
+					<a href="/getDashBoard">DashBoard</a>
+					<a href="/getAllUserList">See all users</a>
+				</nav>
+			</header>
+			<section>
+				<h2>List of all users</h2>
+			</section>
+			<section>
+				<ul>
+					<% if (users && users.length > 0) { %>
+						<% users.forEach(user => { %>
+							<li>
+								<img src="<%= user.avatar %>" width="60" height="60">
+								<a href="/seeProfile?username=<%= encodeURIComponent(user.username)%>">
+									<strong><%= user.username %></strong>
+								</a>
+								<% if(user.description) { %>
+									<small><%= user.description %></small>
+								<% } %>
+							</li>
+						<% }) %>
+					<% } else { %>
+						<p>There are not users</p>
+					<% } %>
+				</ul>
+			</section>
+			<footer>
+				<h6>Keysoft softwares</h6>
+			</footer>
+		</main>
+	</body>
+</html>

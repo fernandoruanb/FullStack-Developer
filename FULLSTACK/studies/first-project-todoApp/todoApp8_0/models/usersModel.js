@@ -402,13 +402,38 @@ exports.registerUser = async (username, password, email, enable2fa) => {
 	return (true);
 };
 
+exports.allUsersList = async () => {
+	const db = getDB();
+	if (!db)
+		throw new Error("DATABASE_NOT_FOUND");
+	const [ rows ] = await db.query("SELECT username,avatar,description FROM users ORDER BY username ASC");
+	return (rows);
+}
+
+exports.getProfileUser = async (user) => {
+        console.log("Get profile: ",user);
+        if (!user) 
+                throw new Error("MISSING_INPUT");
+        const db = getDB();
+        if (!db)
+                throw new Error("DATABASE_FAILED");
+        if (typeof user !== "string")
+                throw new Error("INVALID_INPUT");
+        const [ rows ] = await db.query(`SELECT username,avatar,description,friends FROM users WHERE username = ?`, [ user ]);
+	console.log(rows[0]);
+        return (rows[0] || null);
+};
+
 exports.searchUser = async (user) => {
+	console.log(user);
+	if (!user)
+		throw new Error("MISSING_INPUT");
 	const db = getDB();
 	if (!db)
 		throw new Error("DATABASE_FAILED");
 	if (typeof user !== "string")
 		throw new Error("INVALID_INPUT");
-	const [ rows ] = await db.query(`SELECT * FROM todo WHERE username = ?`, [user]);
+	const [ rows ] = await db.query(`SELECT username,avatar,description,friends FROM users WHERE username LIKE ?`, [ `%${user}%` ]);
 	return (rows);
 };
 
