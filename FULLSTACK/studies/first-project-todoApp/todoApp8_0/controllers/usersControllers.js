@@ -80,6 +80,7 @@ exports.checkCode = async (req, res) => {
 		return res.redirect("/newPassword");
 	} catch (err) {
 		req.session.permission = false;
+		req.session.email = null;
 		console.error("Error validating the code");
 		return res.status(500).json({ error: err.message });
 	}
@@ -134,6 +135,7 @@ exports.getEmailValidateCheck = async (req, res) => {
 
 		return (res.redirect("/verifyForgotPasswordCode"));
 	} catch (err) {
+		req.session.email = null;
 		console.error("Error validating/sending the e-mail to recover password");
 		if (err.message === "NOT_FOUND_USER") {
 			message.push("Email doesn't match with anyone");
