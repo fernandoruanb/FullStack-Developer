@@ -14,10 +14,34 @@
 				</nav>
 			</header>
 			<section>
-				<h2>Profile of <%= user %> </h2>
+				<h2>Profile of <%= users[0].username %> </h2>
 			</section>
 			<section>
-				<img src="<%= avatar %>">
+				<img src="<%= users[0].avatar %>">
+			</section>
+			<section>
+				<% if (users && users.length > 0) { %>
+					<p>Friends: <strong><%= users[0].friends %></strong></p>
+					<% if ( users[0].description ) { %>
+						<p>Description: <strong><%= users[0].description %></strong></p>
+					<% } else { %>
+						<p>Description: <strong>Empty description</strong></p>
+					<% } %>
+				<% } %>
+			</section>
+			<section>
+				<h3>List of friends</h3>
+				<% if (friends && friends.length > 0) { %>
+					<% friends.forEach(friend => { %>
+						<% if ( friend.accepted ) { %>
+							<p>Name: <%= friend.username %><span style="color: green"><strong>Friends</span></p>
+						<% } else { %>
+							<p>Name: <%= friend.username %><span style="color: orange"><strong> Waiting</strong></span></p>
+						<% } %>
+					<% }) %>
+				<% } else { %>
+					<p><strong>You don't have friends D=</strong></p>
+				<% } %>
 			</section>
 			<footer>
 				<h6>Keysoft softwares</h6>

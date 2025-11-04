@@ -7,6 +7,10 @@ const usersModel = require(path.join(__dirname, "../models/usersModel.js"));
 const { validatorMiddleware } = require(path.join(__dirname, "../middlewares/validatorMiddleware.js"));
 const { uploadMiddleware } = require(path.join(__dirname, "../middlewares/uploadMiddleware.js"));
 
+// Friends
+
+router.post("/sendFriendRequest", usersControllers.sendFriendRequest);
+
 // See all users
 
 router.get("/getAllUserList", usersControllers.getAllUsersList);

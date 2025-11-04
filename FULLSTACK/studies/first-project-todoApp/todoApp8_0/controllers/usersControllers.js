@@ -243,10 +243,13 @@ exports.showUserProfile = async (req, res) => {
 	try {
 		const token = req.cookies.token;
 		const decoded = jwt.verify(token, process.env.JWT_SECRET);
-		const user_id = decoded.user_id;
 		const user = decoded.user;
-		const avatar = await usersModel.getAvatar(user_id);
-		res.render("profile", { user, avatar });
+		const user_id = decoded.user_id;
+		const users = await usersModel.searchUser(user);
+		const friends = await usersModel.friendsSearch(user_id);
+		console.log("Users:", users);
+		console.log("friends:", friends);
+		res.render("profile", { users, friends });
 	} catch (err) {
 		return res.status(500).json({ error: err.message });	
 	}

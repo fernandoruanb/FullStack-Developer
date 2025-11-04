@@ -7,6 +7,27 @@ const bcrypt = require("bcrypt");
 const { getDB } = require(path.join(__dirname, "../config/dbConnection.js"));
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
+exports.friendsSearch = async(user_id) => {
+	if (!user_id)
+		throw new Error("MISSING_INPUT");
+	if (typeof user_id !== "number")
+		throw new Error("INVALID_INPUT");
+	const db = getDB();
+	if (!db)
+		throw new Error("DATABASE_NOT_FOUND");
+	// return all ids of friends
+	const result = [];
+	const [ friends ] = await db.query("SELECT friend_id,accepted FROM friends WHERE owner_id = ?", [ user_id ]);
+	if (friends.length === 0)
+		return ([]);
+	for (const friend of friends) {
+		const [ rows ] = await db.query("SELECT username FROM users WHERE id = ?", [ friend.friend_id ]);
+		const username = rows.length > 0 ? rows[0].username : null;
+		result.push({ username: username, accepted: friend.accepted });
+	}
+	return (result);
+};
+
 exports.sendFriendRequest = async (user_id, username) => {
 	if (!user_id || !username)
 		throw new Error("MISSING_INPUT");
@@ -21,7 +42,6 @@ exports.sendFriendRequest = async (user_id, username) => {
         const owner_id = rows[0].id;
 	// Only the target can get the request, the owner no, It needs to be accepted
 	await db.query("INSERT INTO friends (owner_id, friend_id) VALUES (?, ?)", [ owner_id, user_id ]); 
-	
 };
 
 exports.setIsOnline = async (value, user_id) => {
@@ -464,7 +484,7 @@ exports.searchUser = async (user) => {
 		throw new Error("DATABASE_FAILED");
 	if (typeof user !== "string")
 		throw new Error("INVALID_INPUT");
-	const [ rows ] = await db.query(`SELECT username,avatar,description FROM users WHERE username LIKE ?`, [ `%${user}%` ]);
+	const [ rows ] = await db.query(`SELECT username,avatar,description,friends FROM users WHERE username LIKE ?`, [ `%${user}%` ]);
 	return (rows);
 };
 
