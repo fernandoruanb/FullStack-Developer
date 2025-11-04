@@ -1,0 +1,38 @@
+services:
+  api-gateway:
+    build: ./api-gateway
+    image: api-gateway:1.0.0
+    container_name: api-gateway
+    ports:
+      - "3000:3000"
+    depends_on:
+      - product-service
+    networks:
+      - "microservice"
+  product-service:
+    build: ./product-service
+    image: product-service:1.0.0
+    container_name: products-service
+    ports:
+      - "3002:3002"
+    networks:
+      - "microservice"
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: products
+    ports:
+      - "5001:3306"
+    networks:
+      - "microservice"
+    volumes:
+      - "mysql_data:/var/lib/mysql"
+
+volumes:
+  mysql_data:
+networks:
+  microservice:
+    driver: bridge

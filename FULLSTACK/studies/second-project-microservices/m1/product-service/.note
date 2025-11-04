@@ -1,0 +1,12 @@
+npm uninstall package or npm remove package
+
+package.json
+{
+	"name": "program",
+	"version": "1.0.0",
+	"type": "modules",
+	"dependencies": {
+		"express": "^4.18.2",
+		"dotenv": "^16.4.2"
+	}
+}
