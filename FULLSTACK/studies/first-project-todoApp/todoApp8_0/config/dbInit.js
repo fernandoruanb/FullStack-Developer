@@ -43,6 +43,7 @@ async function initDatabase() {
 			isValidEmail BOOLEAN DEFAULT FALSE,
 			description TEXT NULL,
 			friends INT DEFAULT 0,
+			isOnline BOOLEAN DEFAULT FALSE,
 			twoFactorEnable BOOLEAN DEFAULT FALSE,
 			twoFactorSecret VARCHAR(100) DEFAULT NULL,
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -67,6 +68,17 @@ async function initDatabase() {
 			CREATE TABLE IF NOT EXISTS chats (
 			id INT AUTO_INCREMENT PRIMARY KEY,
 			name TEXT NOT NULL,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+			);
+		`);
+
+		await connection.query(`
+			CREATE TABLE IF NOT EXISTS friends (
+			id INT AUTO_INCREMENT PRIMARY KEY,
+			owner_id INT NOT NULL,
+			friend_id INT NOT NULL,
+			accepted BOOLEAN DEFAULT FALSE,
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 			);

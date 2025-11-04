@@ -9,6 +9,23 @@ const speakeasy = require("speakeasy");
 const qrcode = require("qrcode");
 const { sendEmail } = require(path.join(__dirname, "../utils/sendEmail.js"));
 
+exports.sendFriendRequest = async (req, res) => {
+	try {
+		if (!req.body || !req.body.username)
+			throw new Error("MISSING_INPUT");
+		const { username } = req.body;
+		const token = req.cookies.token;
+		const decoded = jwt.verify(token, process.env.JWT_SECRET);
+		const user_id = decoded.user_id;
+		
+		await usersModel.sendFriendRequest(user_id, username);
+		return res.redirect("/profile");
+	} catch (err) {
+		console.error("Error sending friends requests");
+		return res.status(500).json({ error: err.message });
+	}
+};
+
 exports.recoverPassword = async (req, res) => {
 	let message = [];
 	let success = [];
@@ -778,6 +795,8 @@ exports.login = async (req, res) => {
 			return res.render("2fa_after", { user, message });
 		}
 
+		await usersModel.setIsOnline("1", user_id);
+
 		return res.redirect("/getDashBoard");
 	} catch (err) {
 		//const message = "Email/Password incorrect";
@@ -872,7 +891,7 @@ exports.signUpPage = (req, res) => {
 	res.render("register", { message } );
 };
 
-exports.logout = (req, res) => {
+exports.logout = async (req, res) => {
 	// the logout is only the clean of cookies and go back to login webpage
 	const isProduction = process.env.NODE_ENV === "production";
 
@@ -885,6 +904,11 @@ exports.logout = (req, res) => {
 		external website like OAuth from Google, the session cookie will not send to backend because the
 		strict protection against CSRF. Lax is secure, but not so strong like strict. For natural use of webpage, many websites prefer Lax.
 	*/
+	const token = req.cookies.token;
+	const decoded = jwt.decode(token);
+	const user_id = decoded.user_id;
+
+	await usersModel.setIsOnline("0", user_id);
 
 	res.clearCookie("token", {
 		httpOnly: true,

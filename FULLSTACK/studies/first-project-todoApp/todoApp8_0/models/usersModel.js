@@ -7,6 +7,37 @@ const bcrypt = require("bcrypt");
 const { getDB } = require(path.join(__dirname, "../config/dbConnection.js"));
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
+exports.sendFriendRequest = async (user_id, username) => {
+	if (!user_id || !username)
+		throw new Error("MISSING_INPUT");
+	if (typeof user_id !== "number" || typeof username !== "string")
+		throw new Error("INVALID_INPUT");
+	const db = getDB();
+	if (!db)
+		throw new Error ("DATABASE_NOT_FOUND");
+	const [ rows ] = await db.query("SELECT id FROM users WHERE username = ? limit 1", [ username ]);
+        if (rows.length === 0)
+                throw new Error("NOT_FOUND_USER");
+        const owner_id = rows[0].id;
+	// Only the target can get the request, the owner no, It needs to be accepted
+	await db.query("INSERT INTO friends (owner_id, friend_id) VALUES (?, ?)", [ owner_id, user_id ]); 
+	
+};
+
+exports.setIsOnline = async (value, user_id) => {
+	if (!value || !user_id)
+		throw new Error("MISSING_INPUT");
+	if (typeof user_id !== "number" && (value !== "1" && value !== "2"))
+		throw new Error("INVALID_INPUT");
+	const db = getDB();
+	if (!db)
+		throw new Error("DATABASE_NOT_FOUND");
+	let power = false;
+	if (value === "1")
+		power = true;
+	await db.query("UPDATE users SET isOnline = ? WHERE id = ?", [ power, user_id ]);
+}
+
 exports.checkEmailExistence = async(email) => {
 	if (!email)
 		throw new Error("MISSING_INPUT");
@@ -406,7 +437,7 @@ exports.allUsersList = async () => {
 	const db = getDB();
 	if (!db)
 		throw new Error("DATABASE_NOT_FOUND");
-	const [ rows ] = await db.query("SELECT username,avatar,description FROM users ORDER BY username ASC");
+	const [ rows ] = await db.query("SELECT username,avatar,description,isOnline FROM users ORDER BY username ASC");
 	return (rows);
 }
 
@@ -419,7 +450,7 @@ exports.getProfileUser = async (user) => {
                 throw new Error("DATABASE_FAILED");
         if (typeof user !== "string")
                 throw new Error("INVALID_INPUT");
-        const [ rows ] = await db.query(`SELECT username,avatar,description,friends FROM users WHERE username = ?`, [ user ]);
+        const [ rows ] = await db.query(`SELECT username,avatar,description,friends,isOnline FROM users WHERE username = ?`, [ user ]);
 	console.log(rows[0]);
         return (rows[0] || null);
 };
@@ -433,7 +464,7 @@ exports.searchUser = async (user) => {
 		throw new Error("DATABASE_FAILED");
 	if (typeof user !== "string")
 		throw new Error("INVALID_INPUT");
-	const [ rows ] = await db.query(`SELECT username,avatar,description,friends FROM users WHERE username LIKE ?`, [ `%${user}%` ]);
+	const [ rows ] = await db.query(`SELECT username,avatar,description FROM users WHERE username LIKE ?`, [ `%${user}%` ]);
 	return (rows);
 };
 

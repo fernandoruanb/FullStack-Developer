@@ -22,8 +22,22 @@
                                 <img src="<%= user.avatar %>">
                         </section>
 			<section>
-				<button>Send a friend request</button><br>
-				<button>Chat</button>
+				<% if (user.isOnline) { %>
+                                      <strong><p style="color: green">Online</p></
+strong>
+                                <% } else { %>
+                                      <strong><p style="color: red">Offline</p></strong>
+                                <% } %>
+			</section>
+			<section>
+				<form action="/sendFriendRequest" method="POST">
+					<input type="hidden" name="username" value="<%= user.username %>">
+					<button type="submit">Send a friend request</button><br>
+				</form>
+				<form action="/startDirectMessage" method="POST">
+					<input type="hidden" name="username" value="<%= user.username %>">
+					<button type="submit">Chat</button>
+				</form>
 				<p>Friends: <strong><%= user.friends %></strong> </p>
 				<% if (user.description) { %>
 					<p> Description: <%= user.description %> </p>

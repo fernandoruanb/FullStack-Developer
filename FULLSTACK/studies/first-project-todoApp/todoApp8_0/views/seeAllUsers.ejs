@@ -21,8 +21,14 @@
 				<ul>
 					<% if (users && users.length > 0) { %>
 						<% users.forEach(user => { %>
-							<li>
+							<li style="display: flex; align-items: center; gap:10px;">
 								<img src="<%= user.avatar %>" width="60" height="60">
+								<% if (user.isOnline) { %>
+                                                                        <strong><p style="color: green">Online</p></
+strong>
+                                                                <% } else { %>
+                                                                        <strong><p style="color: red">Offline</p></strong>
+                                                                <% } %>
 								<a href="/seeProfile?username=<%= encodeURIComponent(user.username)%>">
 									<strong><%= user.username %></strong>
 								</a>
