@@ -10,4 +10,4 @@ RUN npm install
 # Copy everything to the container
 COPY . .
 EXPOSE 3002
-CMD [ "node", "server.js" ]
+CMD [ "nodemon", "server.js" ]
