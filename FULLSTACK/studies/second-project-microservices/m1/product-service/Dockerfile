@@ -3,11 +3,9 @@ FROM node:18
 WORKDIR /app
 # Copy the package*.json to the conteiner
 COPY package*.json ./
-# 
-COPY server.js ./
-# Install everything there
-RUN npm install
 # Copy everything to the container
 COPY . .
+# Install everything there
+RUN npm install
 EXPOSE 3002
-CMD [ "nodemon", "server.js" ]
+CMD [ "node", "server.js" ]

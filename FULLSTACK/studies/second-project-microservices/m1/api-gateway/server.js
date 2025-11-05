@@ -5,11 +5,11 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 
 app.get("/api/hello", async (req, res) => {
 	try {
-		const response = await axios.get(`http://localhost:3002/hello`);
+		const response = await axios.get("http://product-service:3002/hello");
 		res.send(`API Gateway - ${response.data}`);
 	} catch (err) {
 		res.status(500).send("Error connecting to Product Service");

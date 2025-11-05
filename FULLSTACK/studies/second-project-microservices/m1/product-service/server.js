@@ -8,7 +8,7 @@ const app = express();
 const PORT = process.env.PORT || 3002;
 
 app.get("/hello", (req, res) => {
-	res.send("Hello from Product Service, the best of the world =D");
+	res.send("Hello from Product Service, the best of the world =D\n");
 });
 
 app.listen(PORT, () => {

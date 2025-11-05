@@ -1,5 +1,5 @@
 # Start all services
-up:
+up: build
 	@echo "Starting all services, man =D"
 	@docker compose up -d
 
@@ -20,14 +20,14 @@ build:
 clean:
 	@echo "Cleaning the services"
 	@docker image prune -a -f
-	@docker conteiner prune -f
+	@docker container prune -f
 	@docker network prune -f
 
 # Erase everything including the volumes (FULL CLEAN)
 
 fclean:
 	@echo "Erasing everything"
-	@docker compose system prune -a --volumes
+	@docker system prune -a -f --volumes
 
 # Restart all the services (RESTART, MAN)
 
