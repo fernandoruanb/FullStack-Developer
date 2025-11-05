@@ -13,10 +13,9 @@ services:
     build: ./product-service
     image: product-service:1.0.0
     container_name: product-service
-    ports:
-      - "3002:3002"
     networks:
       - "microservice"
+      - "data"
   mysql:
     image: mysql:8.0
     container_name: mysql
@@ -24,10 +23,9 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: products
-    ports:
-      - "3003:3306"
     networks:
       - "microservice"
+      - "data"
     volumes:
       - "mysql_data:/var/lib/mysql"
 
@@ -35,4 +33,6 @@ volumes:
   mysql_data:
 networks:
   microservice:
+    driver: bridge
+  data:
     driver: bridge
