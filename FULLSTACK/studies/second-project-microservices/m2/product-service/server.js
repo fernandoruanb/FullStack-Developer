@@ -1,6 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
-
+import { initDatabase } from './config/dbInit.js';
 dotenv.config();
 
 const app = express();
@@ -11,6 +11,9 @@ app.get("/hello", (req, res) => {
 	res.send("Hello from Product Service, the best of the world =D\n");
 });
 
-app.listen(PORT, () => {
-	console.log(`Product Service running on port ${PORT}`);
-});
+(async () => {
+	await initDatabase();
+	app.listen(PORT, () => {
+		console.log(`Product Service running on port ${PORT}`);
+	});
+})();

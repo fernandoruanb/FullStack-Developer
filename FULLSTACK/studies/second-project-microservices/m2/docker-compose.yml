@@ -17,8 +17,9 @@ services:
       - "microservice"
       - "data"
   mysql:
-    image: mysql:8.0
-    container_name: mysql
+    build: ./mysql-service
+    image: mysql-service:1.0
+    container_name: mysql-db
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
